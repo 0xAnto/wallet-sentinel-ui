@@ -4,8 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
 import { SettingsIcon, Save } from "lucide-react"
 import { GradientText } from "@/components/common/gradient-text"
 import { GradientCard } from "@/components/common/gradient-card"
@@ -116,21 +115,29 @@ export default function Settings() {
                   Receive email notifications when wallet balances drop below thresholds
                 </p>
               </div>
-              <Switch checked={emailNotifications} onCheckedChange={setEmailNotifications} />
+              <Button
+                variant={emailNotifications ? "default" : "outline"}
+                onClick={() => setEmailNotifications(!emailNotifications)}
+                className="ml-4"
+              >
+                {emailNotifications ? "Enabled" : "Disabled"}
+              </Button>
             </div>
 
             <div className="space-y-2">
               <Label>Notification Frequency</Label>
-              <Select value={notificationFrequency} onValueChange={setNotificationFrequency}>
-                <SelectTrigger className="bg-gray-800 border-gray-700">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="immediate">Immediate</SelectItem>
-                  <SelectItem value="hourly">Hourly</SelectItem>
-                  <SelectItem value="daily">Daily</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                {["immediate", "hourly", "daily"].map((freq) => (
+                  <Button
+                    key={freq}
+                    variant={notificationFrequency === freq ? "default" : "outline"}
+                    onClick={() => setNotificationFrequency(freq)}
+                    className="capitalize"
+                  >
+                    {freq}
+                  </Button>
+                ))}
+              </div>
               <p className="text-sm text-gray-400">How often you want to receive notifications for the same wallet</p>
             </div>
           </CardContent>

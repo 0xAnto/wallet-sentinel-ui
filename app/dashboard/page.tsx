@@ -22,29 +22,19 @@ import {
   updateWallet,
   fetchWalletBalance,
   getNotificationHistory,
+  type Wallet,
+  type Notification,
 } from "@/lib/wallet-service"
 import { useToast } from "@/hooks/use-toast"
 
-interface Wallet {
-  id: string
-  address: string
-  threshold: number
-  nickname: string | null
+interface WalletWithBalance extends Wallet {
   balance?: number
   isLoading?: boolean
 }
 
-interface Notification {
-  id: string
-  wallet_address: string
-  balance: number
-  threshold: number
-  sent_at: string
-}
-
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null)
-  const [wallets, setWallets] = useState<Wallet[]>([])
+  const [wallets, setWallets] = useState<WalletWithBalance[]>([])
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
   const [newAddress, setNewAddress] = useState("")
@@ -206,6 +196,7 @@ export default function Dashboard() {
         title="Dashboard"
         subtitle="Monitor your wallet balances and alerts"
         icon={<Shield className="h-6 w-6 text-blue-400" />}
+        showBackButton={true}
         badge={`${wallets.length} wallets monitored`}
       />
 
@@ -286,7 +277,7 @@ export default function Dashboard() {
 
         {/* Wallets Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {wallets.map((wallet) => {
+          {wallets.map((wallet, index) => {
             const status = wallet.balance !== undefined ? getBalanceStatus(wallet.balance, wallet.threshold) : null
             const StatusIcon = status?.icon
 
