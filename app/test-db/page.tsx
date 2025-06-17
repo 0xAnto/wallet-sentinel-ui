@@ -4,103 +4,106 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { GradientCard } from "@/components/common/gradient-card"
 import { GradientText } from "@/components/common/gradient-text"
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { supabase } from "@/lib/supabase"
 
-export default function TestDB() {
-  const [result, setResult] = useState<string>("")
+export default function TestDatabase() {
+  const [results, setResults] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
 
-  const testConnection = async () => {
-    setLoading(true)
-    try {
-      // Test basic connection
-      const { data, error } = await supabase.from("wallets").select("count", { count: "exact", head: true })
-
-      if (error) {
-        setResult(`❌ Error: ${error.message}`)
-      } else {
-        setResult(`✅ Database connected! Wallets table has ${data?.length || 0} records`)
-      }
-    } catch (err: any) {
-      setResult(`❌ Connection failed: ${err.message}`)
-    } finally {
-      setLoading(false)
-    }
+  const addResult = (message: string) => {
+    setResults((prev) => [...prev, `${new Date().toLocaleTimeString()}: ${message}`])
   }
 
-  const testAuth = async () => {
+  const testDatabase = async () => {
     setLoading(true)
+    setResults([])
+
     try {
+      addResult("🔍 Testing database connection...")
+
+      // Test 1: Check if tables exist
+      const { data: tables, error: tablesError } = await supabase.from("wallets").select("id").limit(1)
+
+      if (tablesError) {
+        addResult(`❌ Tables check failed: ${tablesError.message}`)
+        return
+      }
+
+      addResult("✅ Database tables accessible")
+
+      // Test 2: Check authentication
       const {
         data: { user },
       } = await supabase.auth.getUser()
 
       if (user) {
-        setResult(`✅ User authenticated: ${user.email}`)
-      } else {
-        setResult(`ℹ️ No user logged in`)
-      }
-    } catch (err: any) {
-      setResult(`❌ Auth test failed: ${err.message}`)
-    } finally {
-      setLoading(false)
-    }
-  }
+        addResult(`✅ User authenticated: ${user.email}`)
 
-  const testTableStructure = async () => {
-    setLoading(true)
-    try {
-      // Test if we can query the table structure
-      const { data, error } = await supabase.rpc("get_table_info", { table_name: "wallets" }).single()
+        // Test 3: Try to insert and delete a test wallet
+        try {
+          const { data: wallet, error: insertError } = await supabase
+            .from("wallets")
+            .insert({
+              user_id: user.id,
+              address: "0xtest" + Date.now(),
+              threshold: 10.0,
+              nickname: "Test Wallet",
+            })
+            .select()
+            .single()
 
-      if (error) {
-        // Fallback: try to select from wallets with limit 0 to test structure
-        const { error: selectError } = await supabase.from("wallets").select("*").limit(0)
+          if (insertError) {
+            addResult(`❌ Insert test failed: ${insertError.message}`)
+          } else {
+            addResult("✅ Wallet insert successful")
 
-        if (selectError) {
-          setResult(`❌ Table structure test failed: ${selectError.message}`)
-        } else {
-          setResult(`✅ Wallets table structure is accessible`)
+            // Clean up
+            await supabase.from("wallets").delete().eq("id", wallet.id)
+            addResult("✅ Test cleanup successful")
+          }
+        } catch (error: any) {
+          addResult(`❌ Wallet operations failed: ${error.message}`)
         }
       } else {
-        setResult(`✅ Table info retrieved successfully`)
+        addResult("⚠️ No user authenticated - please sign in first")
       }
-    } catch (err: any) {
-      setResult(`❌ Structure test failed: ${err.message}`)
+
+      addResult("🎉 Database test completed!")
+    } catch (error: any) {
+      addResult(`❌ Test failed: ${error.message}`)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black text-white p-4">
-      <div className="max-w-2xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black text-white p-8">
+      <div className="max-w-4xl mx-auto space-y-6">
         <GradientCard>
-          <div className="p-6">
-            <h1 className="text-2xl font-bold mb-6">
-              <GradientText>Database Connection Test</GradientText>
-            </h1>
+          <CardHeader>
+            <CardTitle>
+              <GradientText>Database Test</GradientText>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button onClick={testDatabase} disabled={loading} className="w-full">
+              {loading ? "Testing..." : "Run Database Test"}
+            </Button>
 
-            <div className="space-y-4">
-              <Button onClick={testConnection} disabled={loading} className="w-full">
-                {loading ? "Testing..." : "Test Database Connection"}
-              </Button>
-
-              <Button onClick={testAuth} disabled={loading} className="w-full">
-                {loading ? "Testing..." : "Test Authentication"}
-              </Button>
-
-              <Button onClick={testTableStructure} disabled={loading} className="w-full">
-                {loading ? "Testing..." : "Test Table Structure"}
-              </Button>
-            </div>
-
-            {result && (
-              <div className="mt-6 p-4 bg-gray-800 rounded-lg">
-                <pre className="text-sm whitespace-pre-wrap">{result}</pre>
+            {results.length > 0 && (
+              <div className="bg-gray-900 p-4 rounded-lg">
+                <h3 className="font-semibold mb-2">Test Results:</h3>
+                <div className="space-y-1 text-sm font-mono">
+                  {results.map((result, index) => (
+                    <div key={index} className="text-gray-300">
+                      {result}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
-          </div>
+          </CardContent>
         </GradientCard>
       </div>
     </div>
