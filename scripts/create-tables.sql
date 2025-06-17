@@ -1,6 +1,3 @@
--- Enable RLS
-ALTER DATABASE postgres SET "app.jwt_secret" TO 'your-jwt-secret';
-
 -- Create wallets table
 CREATE TABLE IF NOT EXISTS wallets (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
