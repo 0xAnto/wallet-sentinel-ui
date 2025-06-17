@@ -10,6 +10,13 @@ export interface Wallet {
   updated_at: string
 }
 
+export interface WalletInsert {
+  user_id: string
+  address: string
+  threshold: number
+  nickname?: string | null
+}
+
 export interface Notification {
   id: string
   user_id: string
@@ -19,15 +26,6 @@ export interface Notification {
   threshold: number
   sent_at: string
   email_sent: boolean
-}
-
-export interface UserSettings {
-  id: string
-  user_id: string
-  email_notifications: boolean
-  notification_frequency: string
-  created_at: string
-  updated_at: string
 }
 
 export const fetchWalletBalance = async (address: string): Promise<number> => {
@@ -48,9 +46,7 @@ export const fetchWalletBalance = async (address: string): Promise<number> => {
 
 export const sendEmailNotification = async (email: string, wallet: string, balance: number, threshold: number) => {
   // Mock function - replace with actual email service
-  console.log(`📧 Email Alert: ${email}`)
-  console.log(`Wallet: ${wallet}`)
-  console.log(`Balance: ${balance} APT (below threshold: ${threshold} APT)`)
+  console.log(`Sending email to ${email}: Wallet ${wallet} balance ${balance} APT is below threshold ${threshold} APT`)
   await new Promise((resolve) => setTimeout(resolve, 100))
   return true
 }
@@ -67,32 +63,26 @@ export const getUserWallets = async (userId: string): Promise<Wallet[]> => {
       console.error("Error fetching wallets:", error)
       throw error
     }
+
     return data || []
   } catch (error) {
-    console.error("Failed to get user wallets:", error)
+    console.error("getUserWallets error:", error)
     throw error
   }
 }
 
-export const addWallet = async (wallet: Omit<Wallet, "id" | "created_at" | "updated_at">): Promise<Wallet> => {
+export const addWallet = async (wallet: WalletInsert): Promise<Wallet> => {
   try {
-    const { data, error } = await supabase
-      .from("wallets")
-      .insert({
-        ...wallet,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .select()
-      .single()
+    const { data, error } = await supabase.from("wallets").insert(wallet).select().single()
 
     if (error) {
       console.error("Error adding wallet:", error)
       throw error
     }
+
     return data
   } catch (error) {
-    console.error("Failed to add wallet:", error)
+    console.error("addWallet error:", error)
     throw error
   }
 }
@@ -110,9 +100,10 @@ export const updateWallet = async (id: string, updates: Partial<Wallet>): Promis
       console.error("Error updating wallet:", error)
       throw error
     }
+
     return data
   } catch (error) {
-    console.error("Failed to update wallet:", error)
+    console.error("updateWallet error:", error)
     throw error
   }
 }
@@ -126,7 +117,7 @@ export const deleteWallet = async (id: string): Promise<void> => {
       throw error
     }
   } catch (error) {
-    console.error("Failed to delete wallet:", error)
+    console.error("deleteWallet error:", error)
     throw error
   }
 }
@@ -144,49 +135,45 @@ export const getNotificationHistory = async (userId: string): Promise<Notificati
       console.error("Error fetching notifications:", error)
       throw error
     }
+
     return data || []
   } catch (error) {
-    console.error("Failed to get notifications:", error)
+    console.error("getNotificationHistory error:", error)
     throw error
   }
 }
 
 export const createNotification = async (notification: Omit<Notification, "id" | "sent_at">): Promise<void> => {
   try {
-    const { error } = await supabase.from("notifications").insert({
-      ...notification,
-      sent_at: new Date().toISOString(),
-    })
+    const { error } = await supabase.from("notifications").insert(notification)
 
     if (error) {
       console.error("Error creating notification:", error)
       throw error
     }
   } catch (error) {
-    console.error("Failed to create notification:", error)
+    console.error("createNotification error:", error)
     throw error
   }
 }
 
-export const getUserSettings = async (userId: string): Promise<UserSettings | null> => {
+export const getUserSettings = async (userId: string) => {
   try {
     const { data, error } = await supabase.from("user_settings").select("*").eq("user_id", userId).single()
 
     if (error && error.code !== "PGRST116") {
-      console.error("Error fetching settings:", error)
+      console.error("Error fetching user settings:", error)
       throw error
     }
+
     return data
   } catch (error) {
-    console.error("Failed to get user settings:", error)
+    console.error("getUserSettings error:", error)
     return null
   }
 }
 
-export const updateUserSettings = async (
-  userId: string,
-  settings: Partial<Omit<UserSettings, "id" | "user_id" | "created_at" | "updated_at">>,
-): Promise<UserSettings> => {
+export const updateUserSettings = async (userId: string, settings: any) => {
   try {
     const { data, error } = await supabase
       .from("user_settings")
@@ -199,12 +186,13 @@ export const updateUserSettings = async (
       .single()
 
     if (error) {
-      console.error("Error updating settings:", error)
+      console.error("Error updating user settings:", error)
       throw error
     }
+
     return data
   } catch (error) {
-    console.error("Failed to update user settings:", error)
+    console.error("updateUserSettings error:", error)
     throw error
   }
 }

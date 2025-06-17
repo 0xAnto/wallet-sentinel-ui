@@ -50,10 +50,14 @@ export default function Dashboard() {
   const checkUser = async () => {
     try {
       const currentUser = await getCurrentUser()
+      console.log("Current user:", currentUser)
+
       if (!currentUser) {
+        console.log("No user found, redirecting to auth")
         router.push("/auth")
         return
       }
+
       setUser(currentUser)
       await loadData(currentUser.id)
     } catch (error) {
@@ -66,10 +70,15 @@ export default function Dashboard() {
 
   const loadData = async (userId: string) => {
     try {
+      console.log("Loading data for user:", userId)
+
       const [walletsData, notificationsData] = await Promise.all([
         getUserWallets(userId),
         getNotificationHistory(userId),
       ])
+
+      console.log("Loaded wallets:", walletsData)
+      console.log("Loaded notifications:", notificationsData)
 
       setWallets(walletsData)
       setNotifications(notificationsData)
@@ -82,7 +91,7 @@ export default function Dashboard() {
       console.error("Error loading data:", error)
       toast({
         title: "Error",
-        description: "Failed to load wallet data",
+        description: "Failed to load wallet data. Please check your database connection.",
         variant: "destructive",
       })
     }
@@ -101,7 +110,24 @@ export default function Dashboard() {
   }
 
   const handleAddWallet = async () => {
-    if (!newAddress.trim() || !user) return
+    if (!newAddress.trim() || !user) {
+      toast({
+        title: "Error",
+        description: "Please enter a wallet address",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Basic validation
+    if (!newAddress.startsWith("0x") || newAddress.length < 10) {
+      toast({
+        title: "Invalid Address",
+        description: "Please enter a valid wallet address starting with 0x",
+        variant: "destructive",
+      })
+      return
+    }
 
     try {
       const wallet = await addWallet({
@@ -127,7 +153,7 @@ export default function Dashboard() {
       console.error("Error adding wallet:", error)
       toast({
         title: "Error",
-        description: "Failed to add wallet",
+        description: "Failed to add wallet. Please check your database connection.",
         variant: "destructive",
       })
     }
@@ -170,8 +196,12 @@ export default function Dashboard() {
   }
 
   const handleSignOut = async () => {
-    await signOut()
-    router.push("/")
+    try {
+      await signOut()
+      router.push("/")
+    } catch (error) {
+      console.error("Error signing out:", error)
+    }
   }
 
   const getBalanceStatus = (balance: number, threshold: number) => {
@@ -185,7 +215,15 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+        <div className="text-white text-lg">Loading dashboard...</div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black flex items-center justify-center">
+        <div className="text-white text-lg">Redirecting to login...</div>
       </div>
     )
   }
@@ -237,7 +275,7 @@ export default function Dashboard() {
                 <Label htmlFor="address">Wallet Address</Label>
                 <Input
                   id="address"
-                  placeholder="0x..."
+                  placeholder="0x1a2b3c4d5e6f..."
                   value={newAddress}
                   onChange={(e) => setNewAddress(e.target.value)}
                   className="bg-gray-800 border-gray-700"
