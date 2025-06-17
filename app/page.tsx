@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Wallet, TrendingUp, Shield, ArrowRight, Github, Twitter } from "lucide-react"
+import { Shield, Bell, ArrowRight, Github, Twitter, TrendingUp } from "lucide-react"
 import { GradientText } from "@/components/common/gradient-text"
 import { GradientCard } from "@/components/common/gradient-card"
 import { GradientButton } from "@/components/common/gradient-button"
@@ -17,18 +17,18 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center gap-2">
-              <Wallet className="h-8 w-8 text-blue-400" />
-              <GradientText className="text-xl font-bold">Aptos Tools</GradientText>
+              <Shield className="h-8 w-8 text-blue-400" />
+              <GradientText className="text-xl font-bold">Wallet Sentinel</GradientText>
             </div>
             <div className="flex items-center gap-4">
-              <Link href="/gas-tracker">
+              <Link href="/pricing">
                 <Button variant="ghost" className="text-gray-300 hover:text-white">
-                  Gas Tracker
+                  Pricing
                 </Button>
               </Link>
-              <Button variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-800">
-                Connect Wallet
-              </Button>
+              <Link href="/auth">
+                <GradientButton>Get Started</GradientButton>
+              </Link>
             </div>
           </div>
         </div>
@@ -39,34 +39,36 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto text-center">
           <div className="mb-8">
             <Badge className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-blue-300 border-blue-500/30 mb-4">
-              🚀 Now Live on Aptos Mainnet
+              🚀 Never Miss a Low Balance Again
             </Badge>
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <GradientText className="block">Aptos Wallet</GradientText>
+              <GradientText className="block">Wallet Sentinel</GradientText>
               <GradientText variant="green-emerald" className="block">
-                Management Suite
+                Smart Alerts
               </GradientText>
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-              Monitor, manage, and optimize your Aptos wallets with our comprehensive suite of tools. Track gas
-              balances, manage multiple wallets, and stay on top of your portfolio.
+              Monitor your Aptos wallets 24/7 and get instant email alerts when balances drop below your custom
+              thresholds. Never run out of gas for important transactions again.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Link href="/gas-tracker">
+            <Link href="/auth">
               <GradientButton size="lg" className="text-lg px-8 py-3">
-                Launch Gas Tracker
+                Start Monitoring Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </GradientButton>
             </Link>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-gray-700 text-gray-300 hover:bg-gray-800 text-lg px-8 py-3"
-            >
-              View Documentation
-            </Button>
+            <Link href="/pricing">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-gray-700 text-gray-300 hover:bg-gray-800 text-lg px-8 py-3"
+              >
+                View Pricing
+              </Button>
+            </Link>
           </div>
 
           {/* Feature Cards */}
@@ -74,16 +76,16 @@ export default function HomePage() {
             <GradientCard variant="feature">
               <CardHeader>
                 <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mb-4">
-                  <Wallet className="h-6 w-6 text-white" />
+                  <Bell className="h-6 w-6 text-white" />
                 </div>
                 <CardTitle className="text-xl">
-                  <GradientText variant="blue-cyan">Multi-Wallet Tracking</GradientText>
+                  <GradientText variant="blue-cyan">Smart Alerts</GradientText>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-400">
-                  Monitor multiple Aptos wallets simultaneously. Track balances, set alerts, and manage your entire
-                  portfolio from one dashboard.
+                  Set custom balance thresholds for each wallet and receive instant email notifications when balances
+                  drop below your limits.
                 </p>
               </CardContent>
             </GradientCard>
@@ -94,12 +96,12 @@ export default function HomePage() {
                   <TrendingUp className="h-6 w-6 text-white" />
                 </div>
                 <CardTitle className="text-xl">
-                  <GradientText variant="green-emerald">Real-time Analytics</GradientText>
+                  <GradientText variant="green-emerald">Real-time Monitoring</GradientText>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-400">
-                  Get instant insights into your wallet performance with real-time balance updates and comprehensive
+                  Continuous 24/7 monitoring of your wallet balances with real-time updates and comprehensive dashboard
                   analytics.
                 </p>
               </CardContent>
@@ -116,8 +118,8 @@ export default function HomePage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-400">
-                  Your wallet data stays secure with client-side processing. No private keys or sensitive data stored on
-                  our servers.
+                  Your wallet addresses are stored securely. We only monitor balances - never access your private keys
+                  or funds.
                 </p>
               </CardContent>
             </GradientCard>
@@ -137,15 +139,15 @@ export default function HomePage() {
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-3xl font-bold mb-2">
-                <GradientText variant="blue-cyan">10K+</GradientText>
+                <GradientText variant="blue-cyan">1K+</GradientText>
               </div>
-              <div className="text-gray-400">Wallets Tracked</div>
+              <div className="text-gray-400">Wallets Monitored</div>
             </div>
             <div>
               <div className="text-3xl font-bold mb-2">
-                <GradientText variant="green-emerald">$2M+</GradientText>
+                <GradientText variant="green-emerald">$500K+</GradientText>
               </div>
-              <div className="text-gray-400">Total Value Monitored</div>
+              <div className="text-gray-400">Protected Value</div>
             </div>
             <div>
               <div className="text-3xl font-bold mb-2">
@@ -168,8 +170,8 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <Wallet className="h-6 w-6 text-blue-400" />
-              <GradientText className="text-lg font-semibold">Aptos Tools</GradientText>
+              <Shield className="h-6 w-6 text-blue-400" />
+              <GradientText className="text-lg font-semibold">Wallet Sentinel</GradientText>
             </div>
             <div className="flex items-center gap-6">
               <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
@@ -183,7 +185,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-gray-800/50 text-center text-gray-400">
-            <p>&copy; 2024 Aptos Tools. Built for the Aptos ecosystem.</p>
+            <p>&copy; 2024 Wallet Sentinel. Secure wallet monitoring for the Aptos ecosystem.</p>
           </div>
         </div>
       </footer>

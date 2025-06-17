@@ -7,8 +7,8 @@ import { Toaster } from "@/components/ui/toaster"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Aptos Tools - Wallet Management Suite",
-  description: "Monitor, manage, and optimize your Aptos wallets with comprehensive tools",
+  title: "Wallet Sentinel - Smart Aptos Wallet Monitoring",
+  description: "Monitor your Aptos wallets 24/7 and get instant alerts when balances drop below your thresholds",
     generator: 'v0.dev'
 }
 
