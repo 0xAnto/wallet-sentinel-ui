@@ -1,31 +1,40 @@
-import {
-  getUserWallets,
-  fetchWalletBalance,
-  createNotification,
-  sendEmailNotification,
-  getUserSettings,
-} from "./wallet-service"
+import { fetchWalletBalance, createNotification, sendEmailNotification, getUserSettings } from "./wallet-service"
 import { supabase } from "./supabase"
 
 export const checkWalletAlerts = async () => {
   try {
-    // Get all users
-    const { data: users, error: usersError } = await supabase.auth.admin.listUsers()
-    if (usersError) throw usersError
+    // Get all users with wallets
+    const { data: wallets, error } = await supabase.from("wallets").select("*, user_id")
 
-    for (const user of users.users) {
-      await checkUserWalletAlerts(user.id, user.email!)
+    if (error) throw error
+
+    // Group wallets by user
+    const userWallets = wallets.reduce((acc: any, wallet: any) => {
+      if (!acc[wallet.user_id]) {
+        acc[wallet.user_id] = []
+      }
+      acc[wallet.user_id].push(wallet)
+      return acc
+    }, {})
+
+    // Check alerts for each user
+    for (const [userId, userWalletList] of Object.entries(userWallets)) {
+      await checkUserWalletAlerts(userId, userWalletList as any[])
     }
   } catch (error) {
     console.error("Error checking wallet alerts:", error)
   }
 }
 
-export const checkUserWalletAlerts = async (userId: string, userEmail: string) => {
+export const checkUserWalletAlerts = async (userId: string, wallets: any[]) => {
   try {
-    const [wallets, settings] = await Promise.all([getUserWallets(userId), getUserSettings(userId)])
+    const settings = await getUserSettings(userId)
 
     if (!settings?.email_notifications) return
+
+    // Get user email from auth
+    const { data: user, error: userError } = await supabase.auth.admin.getUserById(userId)
+    if (userError || !user.user?.email) return
 
     for (const wallet of wallets) {
       const balance = await fetchWalletBalance(wallet.address)
@@ -42,7 +51,7 @@ export const checkUserWalletAlerts = async (userId: string, userEmail: string) =
         })
 
         // Send email notification
-        await sendEmailNotification(userEmail, wallet.address, balance, wallet.threshold)
+        await sendEmailNotification(user.user.email, wallet.address, balance, wallet.threshold)
       }
     }
   } catch (error) {
