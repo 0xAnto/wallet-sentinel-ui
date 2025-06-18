@@ -2,9 +2,18 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { SettingsIcon, Plus, Trash2 } from "lucide-react"
+import { GradientCard } from "@/components/common/gradient-card"
+import { GradientButton } from "@/components/common/gradient-button"
+import { PageHeader } from "@/components/common/page-header"
 import { getCurrentUser } from "@/lib/auth"
 import { getUserSettings, updateUserSettings, addEmailAddress, removeEmailAddress } from "@/lib/wallet-service"
 import { useToast } from "@/hooks/use-toast"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function Settings() {
   const [user, setUser] = useState<any>(null)
@@ -125,7 +134,7 @@ export default function Settings() {
 
     try {
       await removeEmailAddress(user.id, email)
-      setEmailAddresses(emailAddresses.filter(e => e !== email))
+      setEmailAddresses(emailAddresses.filter((e) => e !== email))
       toast({
         title: "Email Removed",
         description: "Email address removed from notification list",
@@ -142,4 +151,67 @@ export default function Settings() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black flex items-center justify\
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black flex flex-col items-center justify-center">
+      <PageHeader title="Settings" icon={SettingsIcon} />
+      <GradientCard className="w-full max-w-md p-6">
+        <CardHeader>
+          <CardTitle>Notification Settings</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between mb-4">
+            <Label>Email Notifications</Label>
+            <Button onClick={() => setEmailNotifications(!emailNotifications)}>
+              {emailNotifications ? "Enabled" : "Disabled"}
+            </Button>
+          </div>
+          <div className="flex items-center justify-between mb-4">
+            <Label>Notification Frequency</Label>
+            <select
+              value={notificationFrequency}
+              onChange={(e) => setNotificationFrequency(e.target.value as "immediate" | "hourly" | "daily")}
+              className="bg-white text-black p-2 rounded"
+            >
+              <option value="immediate">Immediate</option>
+              <option value="hourly">Hourly</option>
+              <option value="daily">Daily</option>
+            </select>
+          </div>
+          <div className="mb-4">
+            <Label>Email Addresses</Label>
+            <ul className="list-disc pl-6">
+              {emailAddresses.map((email, index) => (
+                <li key={index} className="flex items-center justify-between">
+                  {email}
+                  <Button onClick={() => handleRemoveEmail(email)} className="ml-2">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="flex items-center justify-between">
+            <Input
+              type="email"
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+              placeholder="Add new email address"
+              className="w-full mr-2"
+            />
+            <GradientButton onClick={handleAddEmail}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add
+            </GradientButton>
+          </div>
+        </CardContent>
+      </GradientCard>
+      <ThemeToggle />
+    </div>
+  )
+}
