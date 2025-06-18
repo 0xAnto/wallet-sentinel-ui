@@ -10,7 +10,7 @@ import { supabase } from "./supabase"
 export const checkWalletAlerts = async () => {
   try {
     // Get all users
-    const { data: users, error: usersError } = await supabase.auth.admin.listUsers()
+    const { data: users, error: usersError } = await supabase!.auth.admin.listUsers()
     if (usersError) throw usersError
 
     for (const user of users.users) {
