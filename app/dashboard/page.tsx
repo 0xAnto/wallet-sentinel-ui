@@ -506,23 +506,97 @@ export default function Dashboard() {
           {filteredAndSortedWallets.map((wallet, index) => {
             const status = wallet.balance !== undefined ? getBalanceStatus(wallet.balance, wallet.threshold) : null
             const StatusIcon = status?.icon
+            const walletName = wallet.nickname || `Wallet ${wallet.address.slice(0, 8)}...`
 
-            return (
-              <GradientCard
-                key={wallet.id}
-                className={`
-                  hover:border-purple-400/60 dark:hover:border-purple-600/60 transition-all duration-300 
-                  backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 
-                  border border-purple-200/30 dark:border-purple-700/30
-                  ${viewMode === "list" ? "flex-row" : "flex-col"}
-                `}
-              >
-                <CardHeader className={`${viewMode === "list" ? "pb-3 flex-shrink-0" : "pb-3"}`}>
+            // Common card classes
+            const cardClasses = `
+              hover:border-purple-400/60 dark:hover:border-purple-600/60 transition-all duration-300 
+              backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 
+              border border-purple-200/30 dark:border-purple-700/30
+              ${viewMode === "list" ? "flex-row" : "flex-col"}
+            `
+
+            // Common input classes
+            const inputClasses = "bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/30 dark:border-purple-700/30 backdrop-blur-sm text-sm focus:border-purple-500/60 dark:focus:border-purple-400/60"
+
+            // Render list mode layout
+            const renderListMode = () => (
+              <div className="flex items-center w-full p-4 gap-3 sm:gap-4">
+                {/* Name section - Fixed width for consistency */}
+                <div className="w-32 sm:w-40 flex-shrink-0">
+                  <div className="text-sm sm:text-lg truncate" title={walletName}>
+                    <GradientText variant="blue-cyan">{walletName}</GradientText>
+                  </div>
+                </div>
+
+                {/* Delete button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDeleteWallet(wallet.id)}
+                  className="h-8 w-8 p-0 hover:bg-red-100/80 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 flex-shrink-0"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+
+                {/* Address section - Flexible */}
+                <div className="flex-1 min-w-0 hidden sm:block">
+                  <div className={`font-mono ${inputClasses} p-2 rounded border truncate`}>
+                    {wallet.address}
+                  </div>
+                </div>
+
+                {/* Right section - Fixed width sections */}
+                <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+                  {/* Balance */}
+                  <div className="w-20 sm:w-24 text-right">
+                    {wallet.isLoading ? (
+                      <Skeleton className="h-6 w-full bg-purple-200/50 dark:bg-purple-800/30" />
+                    ) : wallet.balance !== undefined ? (
+                      <div className="font-bold text-sm sm:text-lg">
+                        <GradientText variant="green-emerald">
+                          {wallet.balance.toFixed(2)} APT
+                        </GradientText>
+                      </div>
+                    ) : (
+                      <div className="text-gray-500 text-xs sm:text-sm">Loading...</div>
+                    )}
+                  </div>
+
+                  {/* Threshold */}
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Input
+                      type="number"
+                      min="0.1"
+                      step="0.1"
+                      value={wallet.threshold}
+                      onChange={(e) =>
+                        handleUpdateThreshold(wallet.id, Number.parseFloat(e.target.value) || wallet.threshold)
+                      }
+                      className={`${inputClasses} w-16 sm:w-20`}
+                    />
+                    <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 hidden sm:inline">APT</span>
+                  </div>
+
+                  {/* Status */}
+                  {status && (
+                    <Badge className={`${status.color} border backdrop-blur-sm text-xs`}>
+                      {StatusIcon && <StatusIcon className="h-3 w-3 mr-1" />}
+                      <span className="hidden sm:inline">{status.status}</span>
+                      <span className="sm:hidden">{status.status.charAt(0)}</span>
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )
+
+            // Render grid mode layout
+            const renderGridMode = () => (
+              <>
+                <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className={`${viewMode === "small-grid" ? "text-base" : "text-lg"}`}>
-                      <GradientText variant="blue-cyan">
-                        {wallet.nickname || `Wallet ${wallet.address.slice(0, 8)}...`}
-                      </GradientText>
+                    <CardTitle className={viewMode === "small-grid" ? "text-base" : "text-lg"}>
+                      <GradientText variant="blue-cyan">{walletName}</GradientText>
                     </CardTitle>
                     <Button
                       variant="ghost"
@@ -534,12 +608,10 @@ export default function Dashboard() {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className={`space-y-4 ${viewMode === "list" ? "flex-1" : ""}`}>
+                <CardContent className="space-y-4">
                   <div>
                     <Label className="text-sm text-gray-600 dark:text-gray-400">Address</Label>
-                    <div
-                      className={`font-mono bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 p-2 rounded border border-purple-300/30 dark:border-purple-700/30 backdrop-blur-sm break-all ${viewMode === "small-grid" ? "text-xs" : "text-sm"}`}
-                    >
+                    <div className={`font-mono ${inputClasses} p-2 rounded border break-all ${viewMode === "small-grid" ? "text-xs" : "text-sm"}`}>
                       {viewMode === "small-grid"
                         ? `${wallet.address.slice(0, 10)}...${wallet.address.slice(-6)}`
                         : wallet.address}
@@ -571,7 +643,7 @@ export default function Dashboard() {
                           onChange={(e) =>
                             handleUpdateThreshold(wallet.id, Number.parseFloat(e.target.value) || wallet.threshold)
                           }
-                          className="bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/30 dark:border-purple-700/30 backdrop-blur-sm text-sm focus:border-purple-500/60 dark:focus:border-purple-400/60"
+                          className={inputClasses}
                         />
                         <span className="text-sm text-gray-600 dark:text-gray-400">APT</span>
                       </div>
@@ -592,6 +664,12 @@ export default function Dashboard() {
                     </div>
                   )}
                 </CardContent>
+              </>
+            )
+
+            return (
+              <GradientCard key={wallet.id} className={cardClasses}>
+                {viewMode === "list" ? renderListMode() : renderGridMode()}
               </GradientCard>
             )
           })}
