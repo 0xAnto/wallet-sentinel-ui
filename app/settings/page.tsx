@@ -158,7 +158,7 @@ export default function Settings() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-white dark:from-gray-950 dark:via-purple-950 dark:to-black text-gray-900 dark:text-white">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200/50 dark:border-gray-800/50 backdrop-blur-md bg-white/80 dark:bg-gray-900/80">
+      <div className="flex items-center justify-between p-4 border-b border-purple-200/50 dark:border-purple-800/50 backdrop-blur-md bg-purple-50/80 dark:bg-purple-900/20">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -180,7 +180,7 @@ export default function Settings() {
 
       <div className="max-w-4xl mx-auto p-4 space-y-6">
         {/* Notification Settings */}
-        <GradientCard className="backdrop-blur-md bg-gradient-to-br from-white/90 to-gray-100/90 dark:from-gray-900/90 dark:to-gray-800/90 border border-white/20 dark:border-gray-700/50">
+        <GradientCard className="backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -235,7 +235,7 @@ export default function Settings() {
                   placeholder="Enter email address"
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
-                  className="bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-900/80 border-gray-300/50 dark:border-gray-600/50 backdrop-blur-sm"
+                  className="bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/40 dark:border-purple-600/40 backdrop-blur-sm focus:border-purple-500/60 dark:focus:border-purple-400/60"
                   onKeyPress={(e) => e.key === "Enter" && handleAddEmail()}
                 />
                 <GradientButton onClick={handleAddEmail} disabled={!newEmail}>
@@ -248,17 +248,17 @@ export default function Settings() {
                 {emailAddresses.map((email, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-100/80 to-white/80 dark:from-gray-800/80 dark:to-gray-900/80 rounded-lg border border-gray-300/30 dark:border-gray-700/30 backdrop-blur-sm"
+                    className="flex items-center justify-between p-3 bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 rounded-lg border border-purple-300/30 dark:border-purple-700/30 backdrop-blur-sm"
                   >
                     <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                      <Mail className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                       <span className="text-sm">{email}</span>
                     </div>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleRemoveEmail(email)}
-                      className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400"
+                      className="h-8 w-8 p-0 hover:bg-red-100/80 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400"
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -273,7 +273,7 @@ export default function Settings() {
         </GradientCard>
 
         {/* Account Information */}
-        <GradientCard className="backdrop-blur-md bg-gradient-to-br from-white/90 to-gray-100/90 dark:from-gray-900/90 dark:to-gray-800/90 border border-white/20 dark:border-gray-700/50">
+        <GradientCard className="backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
           <CardHeader>
             <CardTitle>
               <GradientText>Account Information</GradientText>

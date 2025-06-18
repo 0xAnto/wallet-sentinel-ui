@@ -1,20 +1,13 @@
-import { supabase, isSupabaseConfigured } from "./supabase"
+import { supabase } from "./supabase"
 
 export interface Wallet {
   id: string
   user_id: string
   address: string
+  nickname?: string
   threshold: number
-  nickname: string | null
   created_at: string
   updated_at: string
-}
-
-export interface WalletInsert {
-  user_id: string
-  address: string
-  threshold: number
-  nickname?: string | null
 }
 
 export interface Notification {
@@ -22,10 +15,11 @@ export interface Notification {
   user_id: string
   wallet_id: string
   wallet_address: string
+  wallet_nickname?: string
   balance: number
   threshold: number
+  notification_emails: string[]
   sent_at: string
-  email_sent: boolean
 }
 
 export interface UserSettings {
@@ -33,257 +27,147 @@ export interface UserSettings {
   user_id: string
   email_notifications: boolean
   notification_frequency: "immediate" | "hourly" | "daily"
-  email_addresses: string[]
+  notification_emails: string[]
   created_at: string
   updated_at: string
 }
 
-export const fetchWalletBalance = async (address: string): Promise<number> => {
-  // Mock function - replace with actual Aptos API call
-  await new Promise((resolve) => setTimeout(resolve, 500))
+// Wallet operations
+export async function getUserWallets(userId: string): Promise<Wallet[]> {
+  const { data, error } = await supabase
+    .from("wallets")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
 
-  // Simulate different balance scenarios
-  const mockBalances: Record<string, number> = {
-    "0x1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890": 1250.75,
-    "0x2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890ab": 755.5,
-    "0x3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcd": 423.25,
-    "0x4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef": 187.5,
-    "0x5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12": 92.0,
+  if (error) {
+    console.error("Error fetching wallets:", error)
+    throw error
   }
 
-  return mockBalances[address] || Math.random() * 1000
+  return data || []
 }
 
-export const sendEmailNotification = async (email: string, wallet: string, balance: number, threshold: number) => {
-  // Mock function - replace with actual email service
-  console.log(`Sending email to ${email}: Wallet ${wallet} balance ${balance} APT is below threshold ${threshold} APT`)
-  await new Promise((resolve) => setTimeout(resolve, 100))
-  return true
-}
+export async function addWallet(wallet: Omit<Wallet, "id" | "created_at" | "updated_at">): Promise<Wallet> {
+  const { data, error } = await supabase.from("wallets").insert([wallet]).select().single()
 
-export const getUserWallets = async (userId: string): Promise<Wallet[]> => {
-  try {
-    if (!isSupabaseConfigured()) {
-      console.warn("Supabase not configured, returning empty wallets")
-      return []
-    }
-
-    const { data, error } = await supabase!
-      .from("wallets")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-
-    if (error) {
-      console.error("Error fetching wallets:", error)
-      throw error
-    }
-
-    return data || []
-  } catch (error) {
-    console.error("getUserWallets error:", error)
-    return []
+  if (error) {
+    console.error("Error adding wallet:", error)
+    throw error
   }
+
+  return data
 }
 
-export const addWallet = async (wallet: WalletInsert): Promise<Wallet> => {
-  try {
-    if (!isSupabaseConfigured()) {
-      throw new Error("Database not configured")
-    }
+export async function updateWallet(walletId: string, updates: Partial<Wallet>): Promise<Wallet> {
+  const { data, error } = await supabase
+    .from("wallets")
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq("id", walletId)
+    .select()
+    .single()
 
-    const { data, error } = await supabase!.from("wallets").insert(wallet).select().single()
+  if (error) {
+    console.error("Error updating wallet:", error)
+    throw error
+  }
 
-    if (error) {
-      console.error("Error adding wallet:", error)
-      throw error
-    }
+  return data
+}
 
-    return data
-  } catch (error) {
-    console.error("addWallet error:", error)
+export async function deleteWallet(walletId: string): Promise<void> {
+  const { error } = await supabase.from("wallets").delete().eq("id", walletId)
+
+  if (error) {
+    console.error("Error deleting wallet:", error)
     throw error
   }
 }
 
-export const updateWallet = async (id: string, updates: Partial<Wallet>): Promise<Wallet> => {
-  try {
-    if (!isSupabaseConfigured()) {
-      throw new Error("Database not configured")
-    }
+// Mock balance fetching (replace with real API)
+export async function fetchWalletBalance(address: string): Promise<number> {
+  // Simulate API delay
+  await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    const { data, error } = await supabase!
-      .from("wallets")
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq("id", id)
-      .select()
-      .single()
+  // Return mock balance based on address
+  const hash = address.split("").reduce((a, b) => {
+    a = (a << 5) - a + b.charCodeAt(0)
+    return a & a
+  }, 0)
 
-    if (error) {
-      console.error("Error updating wallet:", error)
-      throw error
-    }
+  return Math.abs(hash % 100) + Math.random() * 50
+}
 
-    return data
-  } catch (error) {
-    console.error("updateWallet error:", error)
+// Notification operations
+export async function getNotificationHistory(userId: string): Promise<Notification[]> {
+  const { data, error } = await supabase
+    .from("notifications")
+    .select("*")
+    .eq("user_id", userId)
+    .order("sent_at", { ascending: false })
+
+  if (error) {
+    console.error("Error fetching notifications:", error)
+    throw error
+  }
+
+  return data || []
+}
+
+export async function deleteNotification(notificationId: string): Promise<void> {
+  const { error } = await supabase.from("notifications").delete().eq("id", notificationId)
+
+  if (error) {
+    console.error("Error deleting notification:", error)
     throw error
   }
 }
 
-export const deleteWallet = async (id: string): Promise<void> => {
-  try {
-    if (!isSupabaseConfigured()) {
-      throw new Error("Database not configured")
-    }
+// User settings operations
+export async function getUserSettings(userId: string): Promise<UserSettings | null> {
+  const { data, error } = await supabase.from("user_settings").select("*").eq("user_id", userId).single()
 
-    const { error } = await supabase!.from("wallets").delete().eq("id", id)
-
-    if (error) {
-      console.error("Error deleting wallet:", error)
-      throw error
-    }
-  } catch (error) {
-    console.error("deleteWallet error:", error)
+  if (error && error.code !== "PGRST116") {
+    console.error("Error fetching user settings:", error)
     throw error
   }
+
+  return data
 }
 
-export const getNotificationHistory = async (userId: string): Promise<Notification[]> => {
-  try {
-    if (!isSupabaseConfigured()) {
-      console.warn("Supabase not configured, returning empty notifications")
-      return []
-    }
+export async function updateUserSettings(userId: string, settings: Partial<UserSettings>): Promise<UserSettings> {
+  const { data, error } = await supabase
+    .from("user_settings")
+    .upsert({
+      user_id: userId,
+      ...settings,
+      updated_at: new Date().toISOString(),
+    })
+    .select()
+    .single()
 
-    const { data, error } = await supabase!
-      .from("notifications")
-      .select("*")
-      .eq("user_id", userId)
-      .order("sent_at", { ascending: false })
-      .limit(50)
-
-    if (error) {
-      console.error("Error fetching notifications:", error)
-      throw error
-    }
-
-    return data || []
-  } catch (error) {
-    console.error("getNotificationHistory error:", error)
-    return []
-  }
-}
-
-export const createNotification = async (notification: Omit<Notification, "id" | "sent_at">): Promise<void> => {
-  try {
-    if (!isSupabaseConfigured()) {
-      throw new Error("Database not configured")
-    }
-
-    const { error } = await supabase!.from("notifications").insert(notification)
-
-    if (error) {
-      console.error("Error creating notification:", error)
-      throw error
-    }
-  } catch (error) {
-    console.error("createNotification error:", error)
+  if (error) {
+    console.error("Error updating user settings:", error)
     throw error
   }
+
+  return data
 }
 
-export const getUserSettings = async (userId: string): Promise<UserSettings | null> => {
-  try {
-    if (!isSupabaseConfigured()) {
-      return null
-    }
+export async function addEmailAddress(userId: string, email: string): Promise<void> {
+  const settings = await getUserSettings(userId)
+  const currentEmails = settings?.notification_emails || []
 
-    const { data, error } = await supabase!.from("user_settings").select("*").eq("user_id", userId).single()
-
-    if (error && error.code !== "PGRST116") {
-      console.error("Error fetching user settings:", error)
-      throw error
-    }
-
-    return data
-  } catch (error) {
-    console.error("getUserSettings error:", error)
-    return null
-  }
+  await updateUserSettings(userId, {
+    notification_emails: [...currentEmails, email],
+  })
 }
 
-export const updateUserSettings = async (userId: string, settings: Partial<UserSettings>): Promise<UserSettings> => {
-  try {
-    if (!isSupabaseConfigured()) {
-      throw new Error("Database not configured")
-    }
+export async function removeEmailAddress(userId: string, email: string): Promise<void> {
+  const settings = await getUserSettings(userId)
+  const currentEmails = settings?.notification_emails || []
 
-    const { data, error } = await supabase!
-      .from("user_settings")
-      .upsert({
-        user_id: userId,
-        ...settings,
-        updated_at: new Date().toISOString(),
-      })
-      .select()
-      .single()
-
-    if (error) {
-      console.error("Error updating user settings:", error)
-      throw error
-    }
-
-    return data
-  } catch (error) {
-    console.error("updateUserSettings error:", error)
-    throw error
-  }
-}
-
-export const addEmailAddress = async (userId: string, email: string): Promise<UserSettings> => {
-  try {
-    if (!isSupabaseConfigured()) {
-      throw new Error("Database not configured")
-    }
-
-    // First get current settings
-    const settings = await getUserSettings(userId)
-    const currentEmails = settings?.email_addresses || []
-
-    // Don't add duplicates
-    if (currentEmails.includes(email)) {
-      return settings as UserSettings
-    }
-
-    // Add new email
-    const updatedEmails = [...currentEmails, email]
-
-    // Update settings
-    return updateUserSettings(userId, { email_addresses: updatedEmails })
-  } catch (error) {
-    console.error("addEmailAddress error:", error)
-    throw error
-  }
-}
-
-export const removeEmailAddress = async (userId: string, email: string): Promise<UserSettings> => {
-  try {
-    if (!isSupabaseConfigured()) {
-      throw new Error("Database not configured")
-    }
-
-    // First get current settings
-    const settings = await getUserSettings(userId)
-    const currentEmails = settings?.email_addresses || []
-
-    // Remove email
-    const updatedEmails = currentEmails.filter((e) => e !== email)
-
-    // Update settings
-    return updateUserSettings(userId, { email_addresses: updatedEmails })
-  } catch (error) {
-    console.error("removeEmailAddress error:", error)
-    throw error
-  }
+  await updateUserSettings(userId, {
+    notification_emails: currentEmails.filter((e) => e !== email),
+  })
 }

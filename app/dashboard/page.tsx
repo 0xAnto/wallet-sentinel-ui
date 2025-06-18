@@ -45,6 +45,9 @@ import {
 import { useToast } from "@/hooks/use-toast"
 
 interface WalletWithBalance {
+  address: string
+  threshold: number
+  nickname?: string
   balance?: number
   isLoading?: boolean
 }
@@ -342,10 +345,19 @@ export default function Dashboard() {
             <p className="text-gray-600 dark:text-gray-400">Monitor your Aptos wallets and stay alert</p>
           </div>
           <div className="flex gap-2">
+            <Link href="/notifications">
+              <Button
+                variant="outline"
+                className="border-purple-300/50 dark:border-purple-700/50 bg-gradient-to-r from-purple-50/80 to-blue-50/80 dark:from-purple-900/30 dark:to-blue-900/30 backdrop-blur-sm hover:from-purple-100/80 hover:to-blue-100/80 dark:hover:from-purple-800/40 dark:hover:to-blue-800/40"
+              >
+                <Bell className="h-4 w-4 mr-2" />
+                Notifications
+              </Button>
+            </Link>
             <Link href="/settings">
               <Button
                 variant="outline"
-                className="border-gray-300 dark:border-gray-700 bg-gradient-to-r from-white/80 to-gray-100/80 dark:from-gray-800/80 dark:to-gray-900/80 backdrop-blur-sm"
+                className="border-purple-300/50 dark:border-purple-700/50 bg-gradient-to-r from-purple-50/80 to-blue-50/80 dark:from-purple-900/30 dark:to-blue-900/30 backdrop-blur-sm hover:from-purple-100/80 hover:to-blue-100/80 dark:hover:from-purple-800/40 dark:hover:to-blue-800/40"
               >
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
@@ -354,7 +366,7 @@ export default function Dashboard() {
             <Button
               variant="outline"
               onClick={handleSignOut}
-              className="border-gray-300 dark:border-gray-700 bg-gradient-to-r from-white/80 to-gray-100/80 dark:from-gray-800/80 dark:to-gray-900/80 backdrop-blur-sm"
+              className="border-purple-300/50 dark:border-purple-700/50 bg-gradient-to-r from-purple-50/80 to-blue-50/80 dark:from-purple-900/30 dark:to-blue-900/30 backdrop-blur-sm hover:from-purple-100/80 hover:to-blue-100/80 dark:hover:from-purple-800/40 dark:hover:to-blue-800/40"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
@@ -363,7 +375,7 @@ export default function Dashboard() {
         </div>
 
         {/* Add Wallet Form */}
-        <GradientCard className="backdrop-blur-md bg-gradient-to-br from-white/90 to-gray-100/90 dark:from-gray-900/90 dark:to-gray-800/90 border border-white/20 dark:border-gray-700/50">
+        <GradientCard className="backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Plus className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -379,7 +391,7 @@ export default function Dashboard() {
                   placeholder="0x1a2b3c4d5e6f..."
                   value={newAddress}
                   onChange={(e) => setNewAddress(e.target.value)}
-                  className="bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-900/80 border-gray-300/50 dark:border-gray-600/50 backdrop-blur-sm"
+                  className="bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/40 dark:border-purple-600/40 backdrop-blur-sm focus:border-purple-500/60 dark:focus:border-purple-400/60"
                 />
               </div>
               <div>
@@ -389,7 +401,7 @@ export default function Dashboard() {
                   placeholder="My Main Wallet"
                   value={newNickname}
                   onChange={(e) => setNewNickname(e.target.value)}
-                  className="bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-900/80 border-gray-300/50 dark:border-gray-600/50 backdrop-blur-sm"
+                  className="bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/40 dark:border-purple-600/40 backdrop-blur-sm focus:border-purple-500/60 dark:focus:border-purple-400/60"
                 />
               </div>
               <div>
@@ -401,7 +413,7 @@ export default function Dashboard() {
                   step="0.1"
                   value={newThreshold}
                   onChange={(e) => setNewThreshold(Number.parseFloat(e.target.value) || 10)}
-                  className="bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-900/80 border-gray-300/50 dark:border-gray-600/50 backdrop-blur-sm"
+                  className="bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/40 dark:border-purple-600/40 backdrop-blur-sm focus:border-purple-500/60 dark:focus:border-purple-400/60"
                 />
               </div>
               <div className="flex items-end">
@@ -415,23 +427,23 @@ export default function Dashboard() {
         </GradientCard>
 
         {/* Filters and Controls */}
-        <GradientCard className="backdrop-blur-md bg-gradient-to-br from-white/90 to-gray-100/90 dark:from-gray-900/90 dark:to-gray-800/90 border border-white/20 dark:border-gray-700/50">
+        <GradientCard className="backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
           <CardContent className="p-4">
             <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
               {/* Search and Filters */}
               <div className="flex flex-col sm:flex-row gap-3 flex-1">
                 <div className="relative flex-1 max-w-md">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-purple-400 dark:text-purple-500" />
                   <Input
                     placeholder="Search wallets..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-900/80 border-gray-300/50 dark:border-gray-600/50 backdrop-blur-sm"
+                    className="pl-10 bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/40 dark:border-purple-600/40 backdrop-blur-sm focus:border-purple-500/60 dark:focus:border-purple-400/60"
                   />
                 </div>
 
                 <Select value={filterBy} onValueChange={(value: FilterOption) => setFilterBy(value)}>
-                  <SelectTrigger className="w-[140px] bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-900/80 border-gray-300/50 dark:border-gray-600/50 backdrop-blur-sm">
+                  <SelectTrigger className="w-[140px] bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/40 dark:border-purple-600/40 backdrop-blur-sm">
                     <Filter className="h-4 w-4 mr-2" />
                     <SelectValue />
                   </SelectTrigger>
@@ -444,7 +456,7 @@ export default function Dashboard() {
                 </Select>
 
                 <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
-                  <SelectTrigger className="w-[140px] bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-900/80 border-gray-300/50 dark:border-gray-600/50 backdrop-blur-sm">
+                  <SelectTrigger className="w-[140px] bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/40 dark:border-purple-600/40 backdrop-blur-sm">
                     <SortAsc className="h-4 w-4 mr-2" />
                     <SelectValue />
                   </SelectTrigger>
@@ -459,7 +471,7 @@ export default function Dashboard() {
               </div>
 
               {/* View Mode Toggle */}
-              <div className="flex gap-1 bg-gradient-to-r from-white/60 to-gray-100/60 dark:from-gray-800/60 dark:to-gray-900/60 p-1 rounded-lg border border-gray-300/30 dark:border-gray-600/30 backdrop-blur-sm">
+              <div className="flex gap-1 bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 p-1 rounded-lg border border-purple-300/30 dark:border-purple-600/30 backdrop-blur-sm">
                 <Button
                   variant={viewMode === "list" ? "default" : "ghost"}
                   size="sm"
@@ -499,9 +511,9 @@ export default function Dashboard() {
               <GradientCard
                 key={wallet.id}
                 className={`
-                  hover:border-gray-400 dark:hover:border-gray-600 transition-all duration-300 
-                  backdrop-blur-md bg-gradient-to-br from-white/90 to-gray-100/90 dark:from-gray-900/90 dark:to-gray-800/90 
-                  border border-white/20 dark:border-gray-700/50
+                  hover:border-purple-400/60 dark:hover:border-purple-600/60 transition-all duration-300 
+                  backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 
+                  border border-purple-200/30 dark:border-purple-700/30
                   ${viewMode === "list" ? "flex-row" : "flex-col"}
                 `}
               >
@@ -516,7 +528,7 @@ export default function Dashboard() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDeleteWallet(wallet.id)}
-                      className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-gray-700/50 text-red-600 dark:text-red-400"
+                      className="h-8 w-8 p-0 hover:bg-red-100/80 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -526,7 +538,7 @@ export default function Dashboard() {
                   <div>
                     <Label className="text-sm text-gray-600 dark:text-gray-400">Address</Label>
                     <div
-                      className={`font-mono bg-gradient-to-r from-gray-100/80 to-white/80 dark:from-gray-800/80 dark:to-gray-900/80 p-2 rounded border border-gray-300/30 dark:border-gray-700/30 backdrop-blur-sm break-all ${viewMode === "small-grid" ? "text-xs" : "text-sm"}`}
+                      className={`font-mono bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 p-2 rounded border border-purple-300/30 dark:border-purple-700/30 backdrop-blur-sm break-all ${viewMode === "small-grid" ? "text-xs" : "text-sm"}`}
                     >
                       {viewMode === "small-grid"
                         ? `${wallet.address.slice(0, 10)}...${wallet.address.slice(-6)}`
@@ -537,7 +549,7 @@ export default function Dashboard() {
                   <div>
                     <Label className="text-sm text-gray-600 dark:text-gray-400">Current Balance</Label>
                     {wallet.isLoading ? (
-                      <Skeleton className="h-8 w-full bg-gray-200 dark:bg-gray-800" />
+                      <Skeleton className="h-8 w-full bg-purple-200/50 dark:bg-purple-800/30" />
                     ) : wallet.balance !== undefined ? (
                       <div className={`font-bold ${viewMode === "small-grid" ? "text-lg" : "text-2xl"}`}>
                         <GradientText variant="green-emerald">{wallet.balance.toFixed(2)} APT</GradientText>
@@ -559,7 +571,7 @@ export default function Dashboard() {
                           onChange={(e) =>
                             handleUpdateThreshold(wallet.id, Number.parseFloat(e.target.value) || wallet.threshold)
                           }
-                          className="bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-900/80 border-gray-300/50 dark:border-gray-600/50 backdrop-blur-sm text-sm"
+                          className="bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/30 dark:border-purple-700/30 backdrop-blur-sm text-sm focus:border-purple-500/60 dark:focus:border-purple-400/60"
                         />
                         <span className="text-sm text-gray-600 dark:text-gray-400">APT</span>
                       </div>
@@ -586,9 +598,9 @@ export default function Dashboard() {
         </div>
 
         {filteredAndSortedWallets.length === 0 && wallets.length > 0 && (
-          <GradientCard className="backdrop-blur-md bg-gradient-to-br from-white/90 to-gray-100/90 dark:from-gray-900/90 dark:to-gray-800/90 border border-white/20 dark:border-gray-700/50">
+          <GradientCard className="backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
             <CardContent className="text-center py-12">
-              <Search className="h-12 w-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+              <Search className="h-12 w-12 text-purple-400 dark:text-purple-600 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">No Wallets Found</h3>
               <p className="text-gray-500 dark:text-gray-500">Try adjusting your search or filter criteria.</p>
             </CardContent>
@@ -596,47 +608,13 @@ export default function Dashboard() {
         )}
 
         {wallets.length === 0 && (
-          <GradientCard className="backdrop-blur-md bg-gradient-to-br from-white/90 to-gray-100/90 dark:from-gray-900/90 dark:to-gray-800/90 border border-white/20 dark:border-gray-700/50">
+          <GradientCard className="backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
             <CardContent className="text-center py-12">
-              <Wallet className="h-12 w-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+              <Wallet className="h-12 w-12 text-purple-400 dark:text-purple-600 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">No Wallets Added</h3>
               <p className="text-gray-500 dark:text-gray-500">
                 Add your first wallet to start monitoring balances and receiving alerts.
               </p>
-            </CardContent>
-          </GradientCard>
-        )}
-
-        {/* Recent Notifications */}
-        {notifications.length > 0 && (
-          <GradientCard className="backdrop-blur-md bg-gradient-to-br from-white/90 to-gray-100/90 dark:from-gray-900/90 dark:to-gray-800/90 border border-white/20 dark:border-gray-700/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-                <GradientText variant="yellow-orange">Recent Notifications</GradientText>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {notifications.slice(0, 5).map((notification) => (
-                  <div
-                    key={notification.id}
-                    className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-100/80 to-white/80 dark:from-gray-800/80 dark:to-gray-900/80 rounded-lg border border-gray-300/30 dark:border-gray-700/30 backdrop-blur-sm"
-                  >
-                    <div>
-                      <div className="font-mono text-sm text-gray-700 dark:text-gray-300">
-                        {notification.wallet_address.slice(0, 12)}...
-                      </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        Balance {notification.balance.toFixed(2)} APT dropped below {notification.threshold} APT
-                      </div>
-                    </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-500">
-                      {new Date(notification.sent_at).toLocaleDateString()}
-                    </div>
-                  </div>
-                ))}
-              </div>
             </CardContent>
           </GradientCard>
         )}
