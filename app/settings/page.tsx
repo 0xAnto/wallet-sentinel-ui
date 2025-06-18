@@ -6,12 +6,12 @@ import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { SettingsIcon, Save, Plus, Trash2, ArrowLeft } from "lucide-react"
+import { SettingsIcon, Save, Plus, ArrowLeft, Mail, X, Bell } from "lucide-react"
 import { GradientText } from "@/components/common/gradient-text"
 import { GradientCard } from "@/components/common/gradient-card"
 import { GradientButton } from "@/components/common/gradient-button"
 import { getCurrentUser } from "@/lib/auth"
-import { getUserSettings, updateUserSettings, addEmailAddress, removeEmailAddress } from "@/lib/wallet-service"
+import { getUserSettings, updateUserSettings } from "@/lib/wallet-service"
 import { useToast } from "@/hooks/use-toast"
 import { ThemeToggle } from "@/components/theme-toggle"
 
@@ -53,7 +53,7 @@ export default function Settings() {
       if (settings) {
         setEmailNotifications(settings.email_notifications)
         setNotificationFrequency(settings.notification_frequency)
-        setEmailAddresses(settings.email_addresses || [])
+        setEmailAddresses(settings.notification_emails || [])
       }
     } catch (error) {
       console.error("Error loading settings:", error)
@@ -68,7 +68,7 @@ export default function Settings() {
       await updateUserSettings(user.id, {
         email_notifications: emailNotifications,
         notification_frequency: notificationFrequency,
-        email_addresses: emailAddresses,
+        notification_emails: emailAddresses,
       })
 
       toast({
@@ -112,7 +112,6 @@ export default function Settings() {
     }
 
     try {
-      await addEmailAddress(user.id, newEmail)
       setEmailAddresses([...emailAddresses, newEmail])
       setNewEmail("")
       toast({
@@ -133,7 +132,6 @@ export default function Settings() {
     if (!user) return
 
     try {
-      await removeEmailAddress(user.id, email)
       setEmailAddresses(emailAddresses.filter((e) => e !== email))
       toast({
         title: "Email Removed",
@@ -151,27 +149,27 @@ export default function Settings() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black dark:from-gray-950 dark:via-purple-950 dark:to-black light:from-purple-50 light:via-blue-50 light:to-indigo-100 flex items-center justify-center">
-        <div className="text-white dark:text-white light:text-gray-900">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-white dark:from-gray-950 dark:via-purple-950 dark:to-black flex items-center justify-center">
+        <div className="text-gray-900 dark:text-white">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black dark:from-gray-950 dark:via-purple-950 dark:to-black light:from-purple-50 light:via-blue-50 light:to-indigo-100 text-white dark:text-white light:text-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-white dark:from-gray-950 dark:via-purple-950 dark:to-black text-gray-900 dark:text-white">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-800 dark:border-gray-800 light:border-gray-200">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200/50 dark:border-gray-800/50 backdrop-blur-md bg-white/80 dark:bg-gray-900/80">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => router.push("/dashboard")}
-            className="text-blue-400 hover:text-blue-300"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex items-center gap-2">
-            <SettingsIcon className="h-6 w-6 text-blue-400" />
+            <SettingsIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             <h1 className="text-2xl font-bold">
               <GradientText>Settings</GradientText>
             </h1>
@@ -181,18 +179,19 @@ export default function Settings() {
       </div>
 
       <div className="max-w-4xl mx-auto p-4 space-y-6">
-        {/* Email Notifications */}
-        <GradientCard>
+        {/* Notification Settings */}
+        <GradientCard className="backdrop-blur-md bg-gradient-to-br from-white/90 to-gray-100/90 dark:from-gray-900/90 dark:to-gray-800/90 border border-white/20 dark:border-gray-700/50">
           <CardHeader>
-            <CardTitle>
-              <GradientText>Email Notifications</GradientText>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <GradientText>Notification Settings</GradientText>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
                 <Label className="text-base font-medium">Enable Email Alerts</Label>
-                <p className="text-sm text-gray-400 dark:text-gray-400 light:text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Receive email notifications when wallet balances drop below thresholds
                 </p>
               </div>
@@ -219,23 +218,25 @@ export default function Settings() {
                   </Button>
                 ))}
               </div>
-              <p className="text-sm text-gray-400 dark:text-gray-400 light:text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 How often you want to receive notifications for the same wallet
               </p>
             </div>
 
-            {/* Email Addresses Management */}
+            {/* Email Management */}
             <div className="space-y-4">
-              <Label>Email Addresses</Label>
+              <Label className="text-base font-medium">Notification Email Addresses</Label>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Add email addresses to receive low balance alerts
+              </p>
 
-              {/* Add new email */}
               <div className="flex gap-2">
                 <Input
-                  type="email"
+                  placeholder="Enter email address"
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
-                  placeholder="Add new email address"
-                  className="flex-1"
+                  className="bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-900/80 border-gray-300/50 dark:border-gray-600/50 backdrop-blur-sm"
+                  onKeyPress={(e) => e.key === "Enter" && handleAddEmail()}
                 />
                 <GradientButton onClick={handleAddEmail} disabled={!newEmail}>
                   <Plus className="h-4 w-4 mr-2" />
@@ -243,36 +244,36 @@ export default function Settings() {
                 </GradientButton>
               </div>
 
-              {/* Email list */}
-              {emailAddresses.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-400 dark:text-gray-400 light:text-gray-600">
-                    Current email addresses:
-                  </p>
-                  {emailAddresses.map((email, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 bg-gray-800/50 dark:bg-gray-800/50 light:bg-white/50 rounded-lg border border-gray-700 dark:border-gray-700 light:border-gray-200"
-                    >
+              <div className="space-y-2">
+                {emailAddresses.map((email, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-100/80 to-white/80 dark:from-gray-800/80 dark:to-gray-900/80 rounded-lg border border-gray-300/30 dark:border-gray-700/30 backdrop-blur-sm"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                       <span className="text-sm">{email}</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveEmail(email)}
-                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
                     </div>
-                  ))}
-                </div>
-              )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveEmail(email)}
+                      className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                {emailAddresses.length === 0 && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 italic">No notification emails added yet</p>
+                )}
+              </div>
             </div>
           </CardContent>
         </GradientCard>
 
         {/* Account Information */}
-        <GradientCard>
+        <GradientCard className="backdrop-blur-md bg-gradient-to-br from-white/90 to-gray-100/90 dark:from-gray-900/90 dark:to-gray-800/90 border border-white/20 dark:border-gray-700/50">
           <CardHeader>
             <CardTitle>
               <GradientText>Account Information</GradientText>
@@ -280,11 +281,11 @@ export default function Settings() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label className="text-sm text-gray-400 dark:text-gray-400 light:text-gray-600">Email Address</Label>
+              <Label className="text-sm text-gray-600 dark:text-gray-400">Email Address</Label>
               <div className="text-lg">{user?.email}</div>
             </div>
             <div>
-              <Label className="text-sm text-gray-400 dark:text-gray-400 light:text-gray-600">Account Created</Label>
+              <Label className="text-sm text-gray-600 dark:text-gray-400">Account Created</Label>
               <div className="text-lg">{user?.created_at ? new Date(user.created_at).toLocaleDateString() : "N/A"}</div>
             </div>
           </CardContent>
