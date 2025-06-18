@@ -2,22 +2,16 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { SettingsIcon, Save } from "lucide-react"
-import { GradientText } from "@/components/common/gradient-text"
-import { GradientCard } from "@/components/common/gradient-card"
-import { GradientButton } from "@/components/common/gradient-button"
-import { PageHeader } from "@/components/common/page-header"
 import { getCurrentUser } from "@/lib/auth"
-import { getUserSettings, updateUserSettings } from "@/lib/wallet-service"
+import { getUserSettings, updateUserSettings, addEmailAddress, removeEmailAddress } from "@/lib/wallet-service"
 import { useToast } from "@/hooks/use-toast"
 
 export default function Settings() {
   const [user, setUser] = useState<any>(null)
   const [emailNotifications, setEmailNotifications] = useState(true)
-  const [notificationFrequency, setNotificationFrequency] = useState("immediate")
+  const [notificationFrequency, setNotificationFrequency] = useState<"immediate" | "hourly" | "daily">("daily")
+  const [emailAddresses, setEmailAddresses] = useState<string[]>([])
+  const [newEmail, setNewEmail] = useState("")
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const router = useRouter()
@@ -50,6 +44,7 @@ export default function Settings() {
       if (settings) {
         setEmailNotifications(settings.email_notifications)
         setNotificationFrequency(settings.notification_frequency)
+        setEmailAddresses(settings.email_addresses || [])
       }
     } catch (error) {
       console.error("Error loading settings:", error)
@@ -64,6 +59,7 @@ export default function Settings() {
       await updateUserSettings(user.id, {
         email_notifications: emailNotifications,
         notification_frequency: notificationFrequency,
+        email_addresses: emailAddresses,
       })
 
       toast({
@@ -82,94 +78,68 @@ export default function Settings() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black flex items-center justify-center">
-        <div className="text-white">Loading...</div>
-      </div>
-    )
+  const handleAddEmail = async () => {
+    if (!newEmail || !user) return
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(newEmail)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Check for duplicates
+    if (emailAddresses.includes(newEmail)) {
+      toast({
+        title: "Duplicate Email",
+        description: "This email is already in your notification list",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      await addEmailAddress(user.id, newEmail)
+      setEmailAddresses([...emailAddresses, newEmail])
+      setNewEmail("")
+      toast({
+        title: "Email Added",
+        description: "Email address added to notification list",
+      })
+    } catch (error) {
+      console.error("Error adding email:", error)
+      toast({
+        title: "Error",
+        description: "Failed to add email address",
+        variant: "destructive",
+      })
+    }
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black text-white">
-      <PageHeader
-        title="Settings"
-        subtitle="Manage your notification preferences"
-        icon={<SettingsIcon className="h-6 w-6 text-blue-400" />}
-        showBackButton={true}
-      />
+  const handleRemoveEmail = async (email: string) => {
+    if (!user) return
 
-      <div className="max-w-4xl mx-auto p-4 space-y-6">
-        {/* Email Notifications */}
-        <GradientCard>
-          <CardHeader>
-            <CardTitle>
-              <GradientText>Email Notifications</GradientText>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label className="text-base font-medium">Enable Email Alerts</Label>
-                <p className="text-sm text-gray-400">
-                  Receive email notifications when wallet balances drop below thresholds
-                </p>
-              </div>
-              <Button
-                variant={emailNotifications ? "default" : "outline"}
-                onClick={() => setEmailNotifications(!emailNotifications)}
-                className="ml-4"
-              >
-                {emailNotifications ? "Enabled" : "Disabled"}
-              </Button>
-            </div>
+    try {
+      await removeEmailAddress(user.id, email)
+      setEmailAddresses(emailAddresses.filter(e => e !== email))
+      toast({
+        title: "Email Removed",
+        description: "Email address removed from notification list",
+      })
+    } catch (error) {
+      console.error("Error removing email:", error)
+      toast({
+        title: "Error",
+        description: "Failed to remove email address",
+        variant: "destructive",
+      })
+    }
+  }
 
-            <div className="space-y-2">
-              <Label>Notification Frequency</Label>
-              <div className="flex gap-2">
-                {["immediate", "hourly", "daily"].map((freq) => (
-                  <Button
-                    key={freq}
-                    variant={notificationFrequency === freq ? "default" : "outline"}
-                    onClick={() => setNotificationFrequency(freq)}
-                    className="capitalize"
-                  >
-                    {freq}
-                  </Button>
-                ))}
-              </div>
-              <p className="text-sm text-gray-400">How often you want to receive notifications for the same wallet</p>
-            </div>
-          </CardContent>
-        </GradientCard>
-
-        {/* Account Information */}
-        <GradientCard>
-          <CardHeader>
-            <CardTitle>
-              <GradientText>Account Information</GradientText>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label className="text-sm text-gray-400">Email Address</Label>
-              <div className="text-lg">{user?.email}</div>
-            </div>
-            <div>
-              <Label className="text-sm text-gray-400">Account Created</Label>
-              <div className="text-lg">{user?.created_at ? new Date(user.created_at).toLocaleDateString() : "N/A"}</div>
-            </div>
-          </CardContent>
-        </GradientCard>
-
-        {/* Save Button */}
-        <div className="flex justify-end">
-          <GradientButton onClick={handleSave} disabled={saving}>
-            <Save className="h-4 w-4 mr-2" />
-            {saving ? "Saving..." : "Save Settings"}
-          </GradientButton>
-        </div>
-      </div>
-    </div>
-  )
-}
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black flex items-center justify\

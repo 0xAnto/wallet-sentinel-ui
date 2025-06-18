@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Shield, Plus, Settings, Bell, Trash2, LogOut, AlertTriangle, CheckCircle, Clock } from "lucide-react"
+import { Shield, Plus, Settings, Bell, Trash2, LogOut, AlertTriangle, CheckCircle, Clock, Mail, X } from 'lucide-react'
 import { GradientText } from "@/components/common/gradient-text"
 import { GradientCard } from "@/components/common/gradient-card"
 import { GradientButton } from "@/components/common/gradient-button"
@@ -22,8 +22,11 @@ import {
   updateWallet,
   fetchWalletBalance,
   getNotificationHistory,
+  getUserSettings,
+  updateUserSettings,
   type Wallet,
   type Notification,
+  type UserSettings,
 } from "@/lib/wallet-service"
 import { useToast } from "@/hooks/use-toast"
 
@@ -36,10 +39,12 @@ export default function Dashboard() {
   const [user, setUser] = useState<any>(null)
   const [wallets, setWallets] = useState<WalletWithBalance[]>([])
   const [notifications, setNotifications] = useState<Notification[]>([])
+  const [settings, setSettings] = useState<UserSettings | null>(null)
   const [loading, setLoading] = useState(true)
   const [newAddress, setNewAddress] = useState("")
   const [newThreshold, setNewThreshold] = useState(10)
   const [newNickname, setNewNickname] = useState("")
+  const [newEmail, setNewEmail] = useState("")
   const router = useRouter()
   const { toast } = useToast()
 
@@ -72,16 +77,19 @@ export default function Dashboard() {
     try {
       console.log("Loading data for user:", userId)
 
-      const [walletsData, notificationsData] = await Promise.all([
+      const [walletsData, notificationsData, settingsData] = await Promise.all([
         getUserWallets(userId),
         getNotificationHistory(userId),
+        getUserSettings(userId),
       ])
 
       console.log("Loaded wallets:", walletsData)
       console.log("Loaded notifications:", notificationsData)
+      console.log("Loaded settings:", settingsData)
 
       setWallets(walletsData)
       setNotifications(notificationsData)
+      setSettings(settingsData)
 
       // Fetch balances for all wallets
       for (const wallet of walletsData) {
@@ -195,6 +203,101 @@ export default function Dashboard() {
     }
   }
 
+  const handleAddEmail = async () => {
+    if (!newEmail.trim() || !user) return
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(newEmail)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      const currentEmails = settings?.notification_emails || []
+      if (currentEmails.includes(newEmail.trim())) {
+        toast({
+          title: "Email Already Added",
+          description: "This email is already in your notification list",
+          variant: "destructive",
+        })
+        return
+      }
+
+      const updatedSettings = await updateUserSettings(user.id, {
+        notification_emails: [...currentEmails, newEmail.trim()],
+      })
+
+      setSettings(updatedSettings)
+      setNewEmail("")
+
+      toast({
+        title: "Email Added",
+        description: "Email has been added to notification list",
+      })
+    } catch (error) {
+      console.error("Error adding email:", error)
+      toast({
+        title: "Error",
+        description: "Failed to add email",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleRemoveEmail = async (emailToRemove: string) => {
+    if (!user || !settings) return
+
+    try {
+      const updatedEmails = settings.notification_emails.filter((email) => email !== emailToRemove)
+      const updatedSettings = await updateUserSettings(user.id, {
+        notification_emails: updatedEmails,
+      })
+
+      setSettings(updatedSettings)
+
+      toast({
+        title: "Email Removed",
+        description: "Email has been removed from notification list",
+      })
+    } catch (error) {
+      console.error("Error removing email:", error)
+      toast({
+        title: "Error",
+        description: "Failed to remove email",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleUpdateFrequency = async (frequency: 'hourly' | 'daily') => {
+    if (!user) return
+
+    try {
+      const updatedSettings = await updateUserSettings(user.id, {
+        notification_frequency: frequency,
+      })
+
+      setSettings(updatedSettings)
+
+      toast({
+        title: "Frequency Updated",
+        description: `Notification frequency set to ${frequency}`,
+      })
+    } catch (error) {
+      console.error("Error updating frequency:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update frequency",
+        variant: "destructive",
+      })
+    }
+  }
+
   const handleSignOut = async () => {
     try {
       await signOut()
@@ -206,34 +309,34 @@ export default function Dashboard() {
 
   const getBalanceStatus = (balance: number, threshold: number) => {
     if (balance < threshold)
-      return { color: "bg-red-900 text-red-200 border-red-700", status: "Alert", icon: AlertTriangle }
+      return { color: "bg-red-900 text-red-200 border-red-700 dark:bg-red-900 dark:text-red-200 dark:border-red-700", status: "Alert", icon: AlertTriangle }
     if (balance < threshold * 1.5)
-      return { color: "bg-yellow-900 text-yellow-200 border-yellow-700", status: "Warning", icon: Clock }
-    return { color: "bg-green-900 text-green-200 border-green-700", status: "Healthy", icon: CheckCircle }
+      return { color: "bg-yellow-900 text-yellow-200 border-yellow-700 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700", status: "Warning", icon: Clock }
+    return { color: "bg-green-900 text-green-200 border-green-700 dark:bg-green-900 dark:text-green-200 dark:border-green-700", status: "Healthy", icon: CheckCircle }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black flex items-center justify-center">
-        <div className="text-white text-lg">Loading dashboard...</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-white dark:from-gray-950 dark:via-purple-950 dark:to-black flex items-center justify-center">
+        <div className="text-gray-900 dark:text-white text-lg">Loading dashboard...</div>
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black flex items-center justify-center">
-        <div className="text-white text-lg">Redirecting to login...</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-white dark:from-gray-950 dark:via-purple-950 dark:to-black flex items-center justify-center">
+        <div className="text-gray-900 dark:text-white text-lg">Redirecting to login...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-white dark:from-gray-950 dark:via-purple-950 dark:to-black text-gray-900 dark:text-white">
       <PageHeader
         title="Dashboard"
         subtitle="Monitor your wallet balances and alerts"
-        icon={<Shield className="h-6 w-6 text-blue-400" />}
+        icon={<Shield className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
         showBackButton={true}
         badge={`${wallets.length} wallets monitored`}
       />
@@ -245,27 +348,109 @@ export default function Dashboard() {
             <h1 className="text-2xl font-bold">
               <GradientText>Welcome back, {user?.email}</GradientText>
             </h1>
-            <p className="text-gray-400">Monitor your Aptos wallets and stay alert</p>
+            <p className="text-gray-600 dark:text-gray-400">Monitor your Aptos wallets and stay alert</p>
           </div>
           <div className="flex gap-2">
             <Link href="/settings">
-              <Button variant="outline" className="border-gray-700">
+              <Button variant="outline" className="border-gray-300 dark:border-gray-700">
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
               </Button>
             </Link>
-            <Button variant="outline" onClick={handleSignOut} className="border-gray-700">
+            <Button variant="outline" onClick={handleSignOut} className="border-gray-300 dark:border-gray-700">
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
             </Button>
           </div>
         </div>
 
+        {/* Notification Settings */}
+        <GradientCard>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <GradientText>Notification Settings</GradientText>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Email Management */}
+            <div>
+              <Label className="text-base font-medium">Notification Emails</Label>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                Add email addresses to receive low balance alerts
+              </p>
+              
+              <div className="flex gap-2 mb-3">
+                <Input
+                  placeholder="Enter email address"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
+                  onKeyPress={(e) => e.key === "Enter" && handleAddEmail()}
+                />
+                <GradientButton onClick={handleAddEmail}>
+                  <Mail className="h-4 w-4 mr-2" />
+                  Add
+                </GradientButton>
+              </div>
+
+              <div className="space-y-2">
+                {settings?.notification_emails?.map((email, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-800/50 rounded-lg"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm">{email}</span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveEmail(email)}
+                      className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                {(!settings?.notification_emails || settings.notification_emails.length === 0) && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 italic">No notification emails added yet</p>
+                )}
+              </div>
+            </div>
+
+            {/* Frequency Settings */}
+            <div>
+              <Label className="text-base font-medium">Alert Frequency</Label>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                How often to send notifications for the same wallet
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant={settings?.notification_frequency === 'hourly' ? "default" : "outline"}
+                  onClick={() => handleUpdateFrequency('hourly')}
+                  className="flex-1"
+                >
+                  Hourly
+                </Button>
+                <Button
+                  variant={settings?.notification_frequency === 'daily' ? "default" : "outline"}
+                  onClick={() => handleUpdateFrequency('daily')}
+                  className="flex-1"
+                >
+                  Daily
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </GradientCard>
+
         {/* Add Wallet Form */}
         <GradientCard>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Plus className="h-5 w-5 text-blue-400" />
+              <Plus className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               <GradientText>Add New Wallet</GradientText>
             </CardTitle>
           </CardHeader>
@@ -278,7 +463,7 @@ export default function Dashboard() {
                   placeholder="0x1a2b3c4d5e6f..."
                   value={newAddress}
                   onChange={(e) => setNewAddress(e.target.value)}
-                  className="bg-gray-800 border-gray-700"
+                  className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
                 />
               </div>
               <div>
@@ -288,7 +473,7 @@ export default function Dashboard() {
                   placeholder="My Main Wallet"
                   value={newNickname}
                   onChange={(e) => setNewNickname(e.target.value)}
-                  className="bg-gray-800 border-gray-700"
+                  className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
                 />
               </div>
               <div>
@@ -300,7 +485,7 @@ export default function Dashboard() {
                   step="0.1"
                   value={newThreshold}
                   onChange={(e) => setNewThreshold(Number.parseFloat(e.target.value) || 10)}
-                  className="bg-gray-800 border-gray-700"
+                  className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
                 />
               </div>
               <div className="flex items-end">
@@ -320,7 +505,7 @@ export default function Dashboard() {
             const StatusIcon = status?.icon
 
             return (
-              <GradientCard key={wallet.id} className="hover:border-gray-600 transition-all duration-300">
+              <GradientCard key={wallet.id} className="hover:border-gray-400 dark:hover:border-gray-600 transition-all duration-300">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">
@@ -332,7 +517,7 @@ export default function Dashboard() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDeleteWallet(wallet.id)}
-                      className="h-8 w-8 p-0 hover:bg-gray-700/50 text-red-400"
+                      className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-gray-700/50 text-red-600 dark:text-red-400"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -340,27 +525,27 @@ export default function Dashboard() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label className="text-sm text-gray-400">Address</Label>
-                    <div className="font-mono text-sm bg-gray-800 p-2 rounded border border-gray-700 break-all">
+                    <Label className="text-sm text-gray-600 dark:text-gray-400">Address</Label>
+                    <div className="font-mono text-sm bg-gray-100 dark:bg-gray-800 p-2 rounded border border-gray-300 dark:border-gray-700 break-all">
                       {wallet.address}
                     </div>
                   </div>
 
                   <div>
-                    <Label className="text-sm text-gray-400">Current Balance</Label>
+                    <Label className="text-sm text-gray-600 dark:text-gray-400">Current Balance</Label>
                     {wallet.isLoading ? (
-                      <Skeleton className="h-8 w-full bg-gray-800" />
+                      <Skeleton className="h-8 w-full bg-gray-200 dark:bg-gray-800" />
                     ) : wallet.balance !== undefined ? (
                       <div className="text-2xl font-bold">
                         <GradientText variant="green-emerald">{wallet.balance.toFixed(2)} APT</GradientText>
                       </div>
                     ) : (
-                      <div className="text-gray-500">Loading...</div>
+                      <div className="text-gray-500 dark:text-gray-500">Loading...</div>
                     )}
                   </div>
 
                   <div>
-                    <Label className="text-sm text-gray-400">Alert Threshold</Label>
+                    <Label className="text-sm text-gray-600 dark:text-gray-400">Alert Threshold</Label>
                     <div className="flex items-center gap-2">
                       <Input
                         type="number"
@@ -370,9 +555,9 @@ export default function Dashboard() {
                         onChange={(e) =>
                           handleUpdateThreshold(wallet.id, Number.parseFloat(e.target.value) || wallet.threshold)
                         }
-                        className="bg-gray-800 border-gray-700 text-sm"
+                        className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-sm"
                       />
-                      <span className="text-sm text-gray-400">APT</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">APT</span>
                     </div>
                   </div>
 
@@ -393,9 +578,9 @@ export default function Dashboard() {
         {wallets.length === 0 && (
           <GradientCard>
             <CardContent className="text-center py-12">
-              <Shield className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-400 mb-2">No Wallets Added</h3>
-              <p className="text-gray-500">Add your first wallet to start monitoring balances and receiving alerts.</p>
+              <Shield className="h-12 w-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">No Wallets Added</h3>
+              <p className="text-gray-500 dark:text-gray-500">Add your first wallet to start monitoring balances and receiving alerts.</p>
             </CardContent>
           </GradientCard>
         )}
@@ -405,7 +590,7 @@ export default function Dashboard() {
           <GradientCard>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Bell className="h-5 w-5 text-yellow-400" />
+                <Bell className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
                 <GradientText variant="yellow-orange">Recent Notifications</GradientText>
               </CardTitle>
             </CardHeader>
@@ -414,17 +599,22 @@ export default function Dashboard() {
                 {notifications.slice(0, 5).map((notification) => (
                   <div
                     key={notification.id}
-                    className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg"
+                    className="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-800/50 rounded-lg"
                   >
                     <div>
-                      <div className="font-mono text-sm text-gray-300">
+                      <div className="font-mono text-sm text-gray-700 dark:text-gray-300">
                         {notification.wallet_address.slice(0, 12)}...
                       </div>
-                      <div className="text-sm text-gray-400">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
                         Balance {notification.balance.toFixed(2)} APT dropped below {notification.threshold} APT
                       </div>
+                      {notification.notification_emails && notification.notification_emails.length > 0 && (
+                        <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                          Sent to: {notification.notification_emails.join(', ')}
+                        </div>
+                      )}
                     </div>
-                    <div className="text-sm text-gray-500">{new Date(notification.sent_at).toLocaleDateString()}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-500">{new Date(notification.sent_at).toLocaleDateString()}</div>
                   </div>
                 ))}
               </div>

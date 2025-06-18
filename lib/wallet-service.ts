@@ -28,6 +28,16 @@ export interface Notification {
   email_sent: boolean
 }
 
+export interface UserSettings {
+  id: string
+  user_id: string
+  email_notifications: boolean
+  notification_frequency: "immediate" | "hourly" | "daily"
+  email_addresses: string[]
+  created_at: string
+  updated_at: string
+}
+
 export const fetchWalletBalance = async (address: string): Promise<number> => {
   // Mock function - replace with actual Aptos API call
   await new Promise((resolve) => setTimeout(resolve, 500))
@@ -183,7 +193,7 @@ export const createNotification = async (notification: Omit<Notification, "id" |
   }
 }
 
-export const getUserSettings = async (userId: string) => {
+export const getUserSettings = async (userId: string): Promise<UserSettings | null> => {
   try {
     if (!isSupabaseConfigured()) {
       return null
@@ -203,7 +213,7 @@ export const getUserSettings = async (userId: string) => {
   }
 }
 
-export const updateUserSettings = async (userId: string, settings: any) => {
+export const updateUserSettings = async (userId: string, settings: Partial<UserSettings>): Promise<UserSettings> => {
   try {
     if (!isSupabaseConfigured()) {
       throw new Error("Database not configured")
@@ -227,6 +237,53 @@ export const updateUserSettings = async (userId: string, settings: any) => {
     return data
   } catch (error) {
     console.error("updateUserSettings error:", error)
+    throw error
+  }
+}
+
+export const addEmailAddress = async (userId: string, email: string): Promise<UserSettings> => {
+  try {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Database not configured")
+    }
+
+    // First get current settings
+    const settings = await getUserSettings(userId)
+    const currentEmails = settings?.email_addresses || []
+
+    // Don't add duplicates
+    if (currentEmails.includes(email)) {
+      return settings as UserSettings
+    }
+
+    // Add new email
+    const updatedEmails = [...currentEmails, email]
+
+    // Update settings
+    return updateUserSettings(userId, { email_addresses: updatedEmails })
+  } catch (error) {
+    console.error("addEmailAddress error:", error)
+    throw error
+  }
+}
+
+export const removeEmailAddress = async (userId: string, email: string): Promise<UserSettings> => {
+  try {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Database not configured")
+    }
+
+    // First get current settings
+    const settings = await getUserSettings(userId)
+    const currentEmails = settings?.email_addresses || []
+
+    // Remove email
+    const updatedEmails = currentEmails.filter((e) => e !== email)
+
+    // Update settings
+    return updateUserSettings(userId, { email_addresses: updatedEmails })
+  } catch (error) {
+    console.error("removeEmailAddress error:", error)
     throw error
   }
 }

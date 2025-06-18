@@ -10,6 +10,8 @@ import { GradientText } from "@/components/common/gradient-text"
 import { GradientCard } from "@/components/common/gradient-card"
 import { GradientButton } from "@/components/common/gradient-button"
 import { isSupabaseConfigured } from "@/lib/supabase"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { AppLogo } from "@/components/common/app-logo"
 
 export default function HomePage() {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -26,8 +28,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center gap-2">
-              <Shield className="h-8 w-8 text-blue-400" />
-              <GradientText className="text-xl font-bold">Wallet Sentinel</GradientText>
+              <AppLogo />
             </div>
             <div className="flex items-center gap-4">
               <Link href="/pricing">
@@ -35,6 +36,7 @@ export default function HomePage() {
                   Pricing
                 </Button>
               </Link>
+              <ThemeToggle />
               {isConfigured ? (
                 <Link href="/auth">
                   <GradientButton>Get Started</GradientButton>
@@ -68,7 +70,7 @@ export default function HomePage() {
       <section className="relative py-20 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <div className="mb-8">
-            <Badge className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-500/30 mb-4 text-black">
+            <Badge className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-500/30 mb-4 text-blue-300">
               🚀 Never Miss a Low Balance Again
             </Badge>
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
@@ -240,8 +242,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <Shield className="h-6 w-6 text-blue-400" />
-              <GradientText className="text-lg font-semibold">Wallet Sentinel</GradientText>
+              <AppLogo size="sm" />
             </div>
             <div className="flex items-center gap-6">
               <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
