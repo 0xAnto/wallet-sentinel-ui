@@ -192,10 +192,7 @@ export default function AuthPage() {
           </div>
 
           {/* Demo credentials for testing */}
-          <div className="mt-6 p-4 bg-gray-800/50 rounded-lg">
-            <p className="text-xs text-gray-400 mb-2">For testing:</p>
-            <p className="text-xs text-gray-300">Create a new account or use any email/password combination</p>
-          </div>
+          
         </div>
       </GradientCard>
     </div>
