@@ -6,10 +6,10 @@ import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { SettingsIcon, Plus, Trash2 } from "lucide-react"
+import { SettingsIcon, Save, Plus, Trash2, ArrowLeft } from "lucide-react"
+import { GradientText } from "@/components/common/gradient-text"
 import { GradientCard } from "@/components/common/gradient-card"
 import { GradientButton } from "@/components/common/gradient-button"
-import { PageHeader } from "@/components/common/page-header"
 import { getCurrentUser } from "@/lib/auth"
 import { getUserSettings, updateUserSettings, addEmailAddress, removeEmailAddress } from "@/lib/wallet-service"
 import { useToast } from "@/hooks/use-toast"
@@ -151,67 +151,153 @@ export default function Settings() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black flex items-center justify-center">
-        <p>Loading...</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black dark:from-gray-950 dark:via-purple-950 dark:to-black light:from-purple-50 light:via-blue-50 light:to-indigo-100 flex items-center justify-center">
+        <div className="text-white dark:text-white light:text-gray-900">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black flex flex-col items-center justify-center">
-      <PageHeader title="Settings" icon={SettingsIcon} />
-      <GradientCard className="w-full max-w-md p-6">
-        <CardHeader>
-          <CardTitle>Notification Settings</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between mb-4">
-            <Label>Email Notifications</Label>
-            <Button onClick={() => setEmailNotifications(!emailNotifications)}>
-              {emailNotifications ? "Enabled" : "Disabled"}
-            </Button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black dark:from-gray-950 dark:via-purple-950 dark:to-black light:from-purple-50 light:via-blue-50 light:to-indigo-100 text-white dark:text-white light:text-gray-900">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-800 dark:border-gray-800 light:border-gray-200">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push("/dashboard")}
+            className="text-blue-400 hover:text-blue-300"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="flex items-center gap-2">
+            <SettingsIcon className="h-6 w-6 text-blue-400" />
+            <h1 className="text-2xl font-bold">
+              <GradientText>Settings</GradientText>
+            </h1>
           </div>
-          <div className="flex items-center justify-between mb-4">
-            <Label>Notification Frequency</Label>
-            <select
-              value={notificationFrequency}
-              onChange={(e) => setNotificationFrequency(e.target.value as "immediate" | "hourly" | "daily")}
-              className="bg-white text-black p-2 rounded"
-            >
-              <option value="immediate">Immediate</option>
-              <option value="hourly">Hourly</option>
-              <option value="daily">Daily</option>
-            </select>
-          </div>
-          <div className="mb-4">
-            <Label>Email Addresses</Label>
-            <ul className="list-disc pl-6">
-              {emailAddresses.map((email, index) => (
-                <li key={index} className="flex items-center justify-between">
-                  {email}
-                  <Button onClick={() => handleRemoveEmail(email)} className="ml-2">
-                    <Trash2 className="h-4 w-4" />
+        </div>
+        <ThemeToggle />
+      </div>
+
+      <div className="max-w-4xl mx-auto p-4 space-y-6">
+        {/* Email Notifications */}
+        <GradientCard>
+          <CardHeader>
+            <CardTitle>
+              <GradientText>Email Notifications</GradientText>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-base font-medium">Enable Email Alerts</Label>
+                <p className="text-sm text-gray-400 dark:text-gray-400 light:text-gray-600">
+                  Receive email notifications when wallet balances drop below thresholds
+                </p>
+              </div>
+              <Button
+                variant={emailNotifications ? "default" : "outline"}
+                onClick={() => setEmailNotifications(!emailNotifications)}
+                className="ml-4"
+              >
+                {emailNotifications ? "Enabled" : "Disabled"}
+              </Button>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Notification Frequency</Label>
+              <div className="flex gap-2">
+                {["immediate", "hourly", "daily"].map((freq) => (
+                  <Button
+                    key={freq}
+                    variant={notificationFrequency === freq ? "default" : "outline"}
+                    onClick={() => setNotificationFrequency(freq as "immediate" | "hourly" | "daily")}
+                    className="capitalize"
+                  >
+                    {freq}
                   </Button>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="flex items-center justify-between">
-            <Input
-              type="email"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              placeholder="Add new email address"
-              className="w-full mr-2"
-            />
-            <GradientButton onClick={handleAddEmail}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add
-            </GradientButton>
-          </div>
-        </CardContent>
-      </GradientCard>
-      <ThemeToggle />
+                ))}
+              </div>
+              <p className="text-sm text-gray-400 dark:text-gray-400 light:text-gray-600">
+                How often you want to receive notifications for the same wallet
+              </p>
+            </div>
+
+            {/* Email Addresses Management */}
+            <div className="space-y-4">
+              <Label>Email Addresses</Label>
+
+              {/* Add new email */}
+              <div className="flex gap-2">
+                <Input
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder="Add new email address"
+                  className="flex-1"
+                />
+                <GradientButton onClick={handleAddEmail} disabled={!newEmail}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add
+                </GradientButton>
+              </div>
+
+              {/* Email list */}
+              {emailAddresses.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-400 dark:text-gray-400 light:text-gray-600">
+                    Current email addresses:
+                  </p>
+                  {emailAddresses.map((email, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-gray-800/50 dark:bg-gray-800/50 light:bg-white/50 rounded-lg border border-gray-700 dark:border-gray-700 light:border-gray-200"
+                    >
+                      <span className="text-sm">{email}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveEmail(email)}
+                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </GradientCard>
+
+        {/* Account Information */}
+        <GradientCard>
+          <CardHeader>
+            <CardTitle>
+              <GradientText>Account Information</GradientText>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label className="text-sm text-gray-400 dark:text-gray-400 light:text-gray-600">Email Address</Label>
+              <div className="text-lg">{user?.email}</div>
+            </div>
+            <div>
+              <Label className="text-sm text-gray-400 dark:text-gray-400 light:text-gray-600">Account Created</Label>
+              <div className="text-lg">{user?.created_at ? new Date(user.created_at).toLocaleDateString() : "N/A"}</div>
+            </div>
+          </CardContent>
+        </GradientCard>
+
+        {/* Save Button */}
+        <div className="flex justify-end">
+          <GradientButton onClick={handleSave} disabled={saving}>
+            <Save className="h-4 w-4 mr-2" />
+            {saving ? "Saving..." : "Save Settings"}
+          </GradientButton>
+        </div>
+      </div>
     </div>
   )
 }
