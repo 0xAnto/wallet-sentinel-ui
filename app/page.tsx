@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,8 +9,16 @@ import { Shield, Bell, ArrowRight, Github, Twitter, TrendingUp } from "lucide-re
 import { GradientText } from "@/components/common/gradient-text"
 import { GradientCard } from "@/components/common/gradient-card"
 import { GradientButton } from "@/components/common/gradient-button"
+import { isSupabaseConfigured } from "@/lib/supabase"
 
 export default function HomePage() {
+  const [isConfigured, setIsConfigured] = useState(false)
+
+  useEffect(() => {
+    // Check if Supabase is configured
+    setIsConfigured(isSupabaseConfigured())
+  }, [])
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black text-white">
       {/* Navigation */}
@@ -26,13 +35,34 @@ export default function HomePage() {
                   Pricing
                 </Button>
               </Link>
-              <Link href="/auth">
-                <GradientButton>Get Started</GradientButton>
-              </Link>
+              {isConfigured ? (
+                <Link href="/auth">
+                  <GradientButton>Get Started</GradientButton>
+                </Link>
+              ) : (
+                <Button disabled className="bg-gray-700 text-gray-400">
+                  Setup Required
+                </Button>
+              )}
             </div>
           </div>
         </div>
       </nav>
+
+      {/* Configuration Warning */}
+      {!isConfigured && (
+        <div className="bg-yellow-900/20 border-b border-yellow-700/50">
+          <div className="max-w-7xl mx-auto px-4 py-3">
+            <div className="flex items-center gap-2 text-yellow-300">
+              <Shield className="h-5 w-5" />
+              <span className="text-sm">
+                <strong>Setup Required:</strong> Please configure your Supabase environment variables to enable
+                authentication and database features.
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section className="relative py-20 px-4">
@@ -54,12 +84,18 @@ export default function HomePage() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Link href="/auth">
-              <GradientButton size="lg" className="text-lg px-8 py-3">
-                Start Monitoring Free
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </GradientButton>
-            </Link>
+            {isConfigured ? (
+              <Link href="/auth">
+                <GradientButton size="lg" className="text-lg px-8 py-3">
+                  Start Monitoring Free
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </GradientButton>
+              </Link>
+            ) : (
+              <Button disabled size="lg" className="bg-gray-700 text-gray-400 text-lg px-8 py-3">
+                Setup Required
+              </Button>
+            )}
             <Link href="/pricing">
               <Button
                 size="lg"
@@ -164,6 +200,40 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Setup Instructions */}
+      {!isConfigured && (
+        <section className="py-16 px-4 border-t border-gray-800/50">
+          <div className="max-w-4xl mx-auto">
+            <GradientCard>
+              <CardHeader>
+                <CardTitle className="text-center">
+                  <GradientText>Setup Instructions</GradientText>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="text-gray-300">
+                  <h3 className="font-semibold mb-2">To get started:</h3>
+                  <ol className="list-decimal list-inside space-y-2 text-sm">
+                    <li>
+                      Create a Supabase project at{" "}
+                      <a href="https://supabase.com" className="text-blue-400 hover:underline">
+                        supabase.com
+                      </a>
+                    </li>
+                    <li>Run the provided SQL script to create the database tables</li>
+                    <li>Add your Supabase URL and anon key to your environment variables:</li>
+                  </ol>
+                  <div className="mt-4 p-4 bg-gray-800 rounded-lg font-mono text-sm">
+                    <div>NEXT_PUBLIC_SUPABASE_URL=your_supabase_url</div>
+                    <div>NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key</div>
+                  </div>
+                </div>
+              </CardContent>
+            </GradientCard>
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="border-t border-gray-800/50 py-12 px-4">

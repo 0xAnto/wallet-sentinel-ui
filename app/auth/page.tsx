@@ -11,6 +11,7 @@ import { GradientCard } from "@/components/common/gradient-card"
 import { GradientText } from "@/components/common/gradient-text"
 import { GradientButton } from "@/components/common/gradient-button"
 import { signIn, signUp, getCurrentUser } from "@/lib/auth"
+import { isSupabaseConfigured } from "@/lib/supabase"
 
 export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -19,26 +20,41 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const [configured, setConfigured] = useState(false)
   const router = useRouter()
 
-  // Check if user is already logged in
+  // Check configuration and existing user
   useEffect(() => {
-    checkExistingUser()
-  }, [])
+    const checkSetup = async () => {
+      const isConfigured = isSupabaseConfigured()
+      setConfigured(isConfigured)
 
-  const checkExistingUser = async () => {
-    try {
-      const user = await getCurrentUser()
-      if (user) {
-        router.push("/dashboard")
+      if (!isConfigured) {
+        setError("Supabase is not configured. Please check your environment variables.")
+        return
       }
-    } catch (error) {
-      // User not logged in, stay on auth page
+
+      try {
+        const user = await getCurrentUser()
+        if (user) {
+          router.push("/dashboard")
+        }
+      } catch (error) {
+        // User not logged in, stay on auth page
+      }
     }
-  }
+
+    checkSetup()
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!configured) {
+      setError("Authentication service is not configured.")
+      return
+    }
+
     setLoading(true)
     setError("")
     setSuccess("")
@@ -79,6 +95,27 @@ export default function AuthPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (!configured) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black flex items-center justify-center p-4">
+        <GradientCard className="w-full max-w-md">
+          <div className="p-8 text-center">
+            <h1 className="text-2xl font-bold mb-4">
+              <GradientText>Setup Required</GradientText>
+            </h1>
+            <p className="text-gray-400 mb-6">
+              Please configure your Supabase environment variables to enable authentication.
+            </p>
+            <div className="text-left bg-gray-800 p-4 rounded-lg text-sm font-mono">
+              <div>NEXT_PUBLIC_SUPABASE_URL=your_url</div>
+              <div>NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key</div>
+            </div>
+          </div>
+        </GradientCard>
+      </div>
+    )
   }
 
   return (

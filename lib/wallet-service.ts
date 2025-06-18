@@ -1,4 +1,4 @@
-import { supabase } from "./supabase"
+import { supabase, isSupabaseConfigured } from "./supabase"
 
 export interface Wallet {
   id: string
@@ -53,7 +53,12 @@ export const sendEmailNotification = async (email: string, wallet: string, balan
 
 export const getUserWallets = async (userId: string): Promise<Wallet[]> => {
   try {
-    const { data, error } = await supabase
+    if (!isSupabaseConfigured()) {
+      console.warn("Supabase not configured, returning empty wallets")
+      return []
+    }
+
+    const { data, error } = await supabase!
       .from("wallets")
       .select("*")
       .eq("user_id", userId)
@@ -67,13 +72,17 @@ export const getUserWallets = async (userId: string): Promise<Wallet[]> => {
     return data || []
   } catch (error) {
     console.error("getUserWallets error:", error)
-    throw error
+    return []
   }
 }
 
 export const addWallet = async (wallet: WalletInsert): Promise<Wallet> => {
   try {
-    const { data, error } = await supabase.from("wallets").insert(wallet).select().single()
+    if (!isSupabaseConfigured()) {
+      throw new Error("Database not configured")
+    }
+
+    const { data, error } = await supabase!.from("wallets").insert(wallet).select().single()
 
     if (error) {
       console.error("Error adding wallet:", error)
@@ -89,7 +98,11 @@ export const addWallet = async (wallet: WalletInsert): Promise<Wallet> => {
 
 export const updateWallet = async (id: string, updates: Partial<Wallet>): Promise<Wallet> => {
   try {
-    const { data, error } = await supabase
+    if (!isSupabaseConfigured()) {
+      throw new Error("Database not configured")
+    }
+
+    const { data, error } = await supabase!
       .from("wallets")
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq("id", id)
@@ -110,7 +123,11 @@ export const updateWallet = async (id: string, updates: Partial<Wallet>): Promis
 
 export const deleteWallet = async (id: string): Promise<void> => {
   try {
-    const { error } = await supabase.from("wallets").delete().eq("id", id)
+    if (!isSupabaseConfigured()) {
+      throw new Error("Database not configured")
+    }
+
+    const { error } = await supabase!.from("wallets").delete().eq("id", id)
 
     if (error) {
       console.error("Error deleting wallet:", error)
@@ -124,7 +141,12 @@ export const deleteWallet = async (id: string): Promise<void> => {
 
 export const getNotificationHistory = async (userId: string): Promise<Notification[]> => {
   try {
-    const { data, error } = await supabase
+    if (!isSupabaseConfigured()) {
+      console.warn("Supabase not configured, returning empty notifications")
+      return []
+    }
+
+    const { data, error } = await supabase!
       .from("notifications")
       .select("*")
       .eq("user_id", userId)
@@ -139,13 +161,17 @@ export const getNotificationHistory = async (userId: string): Promise<Notificati
     return data || []
   } catch (error) {
     console.error("getNotificationHistory error:", error)
-    throw error
+    return []
   }
 }
 
 export const createNotification = async (notification: Omit<Notification, "id" | "sent_at">): Promise<void> => {
   try {
-    const { error } = await supabase.from("notifications").insert(notification)
+    if (!isSupabaseConfigured()) {
+      throw new Error("Database not configured")
+    }
+
+    const { error } = await supabase!.from("notifications").insert(notification)
 
     if (error) {
       console.error("Error creating notification:", error)
@@ -159,7 +185,11 @@ export const createNotification = async (notification: Omit<Notification, "id" |
 
 export const getUserSettings = async (userId: string) => {
   try {
-    const { data, error } = await supabase.from("user_settings").select("*").eq("user_id", userId).single()
+    if (!isSupabaseConfigured()) {
+      return null
+    }
+
+    const { data, error } = await supabase!.from("user_settings").select("*").eq("user_id", userId).single()
 
     if (error && error.code !== "PGRST116") {
       console.error("Error fetching user settings:", error)
@@ -175,7 +205,11 @@ export const getUserSettings = async (userId: string) => {
 
 export const updateUserSettings = async (userId: string, settings: any) => {
   try {
-    const { data, error } = await supabase
+    if (!isSupabaseConfigured()) {
+      throw new Error("Database not configured")
+    }
+
+    const { data, error } = await supabase!
       .from("user_settings")
       .upsert({
         user_id: userId,
