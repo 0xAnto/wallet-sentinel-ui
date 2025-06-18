@@ -68,7 +68,7 @@ export default function HomePage() {
       <section className="relative py-20 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <div className="mb-8">
-            <Badge className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-blue-300 border-blue-500/30 mb-4">
+            <Badge className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-500/30 mb-4 text-black">
               🚀 Never Miss a Low Balance Again
             </Badge>
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
