@@ -27,6 +27,7 @@ import {
   Grid2X2,
   List,
   Wallet,
+  RefreshCw,
 } from "lucide-react"
 import { GradientText } from "@/components/common/gradient-text"
 import { GradientCard } from "@/components/common/gradient-card"
@@ -70,6 +71,11 @@ export default function Dashboard() {
   const [sortBy, setSortBy] = useState<SortOption>("name")
   const [filterBy, setFilterBy] = useState<FilterOption>("all")
   const [searchQuery, setSearchQuery] = useState("")
+
+  // Add refresh state
+  const [refreshInterval, setRefreshInterval] = useState(15) // seconds
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [autoRefresh, setAutoRefresh] = useState(true)
 
   const router = useRouter()
   const { toast } = useToast()
@@ -309,6 +315,42 @@ export default function Dashboard() {
     }
   }
 
+  const handleRefresh = async () => {
+    if (!user || isRefreshing) return
+
+    setIsRefreshing(true)
+    try {
+      // Fetch balances for all wallets
+      const refreshPromises = wallets.map((wallet) => fetchBalance(wallet.id, wallet.address))
+      await Promise.all(refreshPromises)
+
+      toast({
+        title: "Refreshed",
+        description: "Wallet balances updated successfully",
+      })
+    } catch (error) {
+      console.error("Error refreshing balances:", error)
+      toast({
+        title: "Refresh Error",
+        description: "Failed to refresh some wallet balances",
+        variant: "destructive",
+      })
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
+  // Auto-refresh effect
+  useEffect(() => {
+    if (!autoRefresh || !user || wallets.length === 0) return
+
+    const interval = setInterval(() => {
+      handleRefresh()
+    }, refreshInterval * 1000)
+
+    return () => clearInterval(interval)
+  }, [autoRefresh, refreshInterval, user, wallets.length])
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-white dark:from-gray-950 dark:via-purple-950 dark:to-black flex items-center justify-center">
@@ -470,6 +512,50 @@ export default function Dashboard() {
                 </Select>
               </div>
 
+              {/* Refresh Controls */}
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 p-2 rounded-lg border border-purple-300/30 dark:border-purple-600/30 backdrop-blur-sm">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRefresh}
+                    disabled={isRefreshing}
+                    className="h-8 px-3 hover:bg-purple-200/50 dark:hover:bg-purple-800/30"
+                  >
+                    <RefreshCw className={`h-4 w-4 mr-1 ${isRefreshing ? "animate-spin" : ""}`} />
+                    {isRefreshing ? "Refreshing..." : "Refresh"}
+                  </Button>
+
+                  <div className="h-4 w-px bg-purple-300/50 dark:bg-purple-600/50" />
+
+                  <Select
+                    value={refreshInterval.toString()}
+                    onValueChange={(value) => setRefreshInterval(Number(value))}
+                  >
+                    <SelectTrigger className="w-[80px] h-8 bg-transparent border-none">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="5">5s</SelectItem>
+                      <SelectItem value="10">10s</SelectItem>
+                      <SelectItem value="15">15s</SelectItem>
+                      <SelectItem value="30">30s</SelectItem>
+                      <SelectItem value="60">1m</SelectItem>
+                      <SelectItem value="300">5m</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setAutoRefresh(!autoRefresh)}
+                    className={`h-8 w-8 p-0 ${autoRefresh ? "text-green-600 dark:text-green-400" : "text-gray-400 dark:text-gray-600"}`}
+                  >
+                    <Clock className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
               {/* View Mode Toggle */}
               <div className="flex gap-1 bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 p-1 rounded-lg border border-purple-300/30 dark:border-purple-600/30 backdrop-blur-sm">
                 <Button
@@ -517,7 +603,8 @@ export default function Dashboard() {
             `
 
             // Common input classes
-            const inputClasses = "bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/30 dark:border-purple-700/30 backdrop-blur-sm text-sm focus:border-purple-500/60 dark:focus:border-purple-400/60"
+            const inputClasses =
+              "bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/30 dark:border-purple-700/30 backdrop-blur-sm text-sm focus:border-purple-500/60 dark:focus:border-purple-400/60"
 
             // Render list mode layout
             const renderListMode = () => (
@@ -541,9 +628,7 @@ export default function Dashboard() {
 
                 {/* Address section - Flexible */}
                 <div className="flex-1 min-w-0 hidden sm:block">
-                  <div className={`font-mono ${inputClasses} p-2 rounded border truncate`}>
-                    {wallet.address}
-                  </div>
+                  <div className={`font-mono ${inputClasses} p-2 rounded border truncate`}>{wallet.address}</div>
                 </div>
 
                 {/* Right section - Fixed width sections */}
@@ -554,9 +639,7 @@ export default function Dashboard() {
                       <Skeleton className="h-6 w-full bg-purple-200/50 dark:bg-purple-800/30" />
                     ) : wallet.balance !== undefined ? (
                       <div className="font-bold text-sm sm:text-lg">
-                        <GradientText variant="green-emerald">
-                          {wallet.balance.toFixed(2)} APT
-                        </GradientText>
+                        <GradientText variant="green-emerald">{wallet.balance.toFixed(2)} APT</GradientText>
                       </div>
                     ) : (
                       <div className="text-gray-500 text-xs sm:text-sm">Loading...</div>
@@ -611,7 +694,9 @@ export default function Dashboard() {
                 <CardContent className="space-y-4">
                   <div>
                     <Label className="text-sm text-gray-600 dark:text-gray-400">Address</Label>
-                    <div className={`font-mono ${inputClasses} p-2 rounded border break-all ${viewMode === "small-grid" ? "text-xs" : "text-sm"}`}>
+                    <div
+                      className={`font-mono ${inputClasses} p-2 rounded border break-all ${viewMode === "small-grid" ? "text-xs" : "text-sm"}`}
+                    >
                       {viewMode === "small-grid"
                         ? `${wallet.address.slice(0, 10)}...${wallet.address.slice(-6)}`
                         : wallet.address}
