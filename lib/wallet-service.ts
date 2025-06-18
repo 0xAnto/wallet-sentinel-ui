@@ -171,3 +171,63 @@ export async function removeEmailAddress(userId: string, email: string): Promise
     notification_emails: currentEmails.filter((e) => e !== email),
   })
 }
+
+// Notification creation and email sending
+export async function createNotification(notification: {
+  user_id: string
+  wallet_id: string
+  wallet_address: string
+  balance: number
+  threshold: number
+  email_sent: boolean
+}): Promise<Notification> {
+  const { data, error } = await supabase
+    .from("notifications")
+    .insert([
+      {
+        ...notification,
+        sent_at: new Date().toISOString(),
+      },
+    ])
+    .select()
+    .single()
+
+  if (error) {
+    console.error("Error creating notification:", error)
+    throw error
+  }
+
+  return data
+}
+
+export async function sendEmailNotification(
+  email: string,
+  walletAddress: string,
+  balance: number,
+  threshold: number,
+): Promise<void> {
+  // Mock email sending - in production, integrate with email service like SendGrid, Resend, etc.
+  console.log(`Sending email notification to ${email}:`)
+  console.log(`Wallet ${walletAddress} balance (${balance.toFixed(2)} APT) is below threshold (${threshold} APT)`)
+
+  // Simulate email sending delay
+  await new Promise((resolve) => setTimeout(resolve, 1000))
+
+  // In production, you would integrate with an actual email service:
+  /*
+  try {
+    await emailService.send({
+      to: email,
+      subject: `🚨 Wallet Balance Alert - ${walletAddress.slice(0, 8)}...`,
+      html: `
+        <h2>Low Balance Alert</h2>
+        <p>Your wallet <code>${walletAddress}</code> has a balance of <strong>${balance.toFixed(2)} APT</strong>, which is below your threshold of <strong>${threshold} APT</strong>.</p>
+        <p>Consider topping up your wallet to avoid transaction failures.</p>
+      `
+    })
+  } catch (error) {
+    console.error("Failed to send email:", error)
+    throw error
+  }
+  */
+}
