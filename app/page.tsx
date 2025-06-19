@@ -67,10 +67,10 @@ export default function HomePage() {
       )}
 
       {/* Hero Section */}
-      <section className="relative py-20 px-4">
+      <section className="relative py-10 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <div className="mb-8">
-            <Badge className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-500/30 mb-4 text-blue-300">
+            <Badge className="bg-gradient-to-r from-black-600/20 to-purple-600/20 border-blue-500/30 mb-4 text-blue-300">
               🚀 Never Miss a Low Balance Again
             </Badge>
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
@@ -80,7 +80,7 @@ export default function HomePage() {
               </GradientText>
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-              Monitor your Aptos wallets 24/7 and get instant email alerts when balances drop below your custom
+              Monitor your wallets 24/7 and get instant email alerts when balances drop below your custom
               thresholds. Never run out of gas for important transactions again.
             </p>
           </div>
@@ -112,7 +112,7 @@ export default function HomePage() {
           {/* Feature Cards */}
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <GradientCard variant="feature">
-              <CardHeader>
+              <CardHeader className="flex flex-col items-center text-center">
                 <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mb-4">
                   <Bell className="h-6 w-6 text-white" />
                 </div>
@@ -129,7 +129,7 @@ export default function HomePage() {
             </GradientCard>
 
             <GradientCard variant="feature">
-              <CardHeader>
+              <CardHeader className="flex flex-col items-center text-center">
                 <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mb-4">
                   <TrendingUp className="h-6 w-6 text-white" />
                 </div>
@@ -146,7 +146,7 @@ export default function HomePage() {
             </GradientCard>
 
             <GradientCard variant="feature">
-              <CardHeader>
+              <CardHeader className="flex flex-col items-center text-center">
                 <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mb-4">
                   <Shield className="h-6 w-6 text-white" />
                 </div>
@@ -185,11 +185,11 @@ export default function HomePage() {
               <div className="text-3xl font-bold mb-2">
                 <GradientText variant="green-emerald">$500K+</GradientText>
               </div>
-              <div className="text-gray-400">Protected Value</div>
+              <div className="text-gray-400">Value Protected</div>
             </div>
             <div>
               <div className="text-3xl font-bold mb-2">
-                <GradientText variant="purple-pink">99.9%</GradientText>
+                <GradientText variant="purple-pink">100%</GradientText>
               </div>
               <div className="text-gray-400">Uptime</div>
             </div>
@@ -256,7 +256,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-gray-800/50 text-center text-gray-400">
-            <p>&copy; 2024 Wallet Sentinel. Secure wallet monitoring for the Aptos ecosystem.</p>
+            <p>&copy; 2025 Wallet Sentinel. Secure wallet monitoring system.</p>
           </div>
         </div>
       </footer>

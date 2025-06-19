@@ -14,5 +14,5 @@ export const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUr
 
 // Helper function to check if Supabase is configured
 export const isSupabaseConfigured = () => {
-  return supabase !== null && supabaseUrl && supabaseAnonKey
-}
+  return supabase !== null && !!supabaseUrl && !!supabaseAnonKey;
+};
