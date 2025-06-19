@@ -111,7 +111,7 @@ export default function HomePage() {
 
           {/* Feature Cards */}
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <GradientCard variant="feature">
+            <GradientCard variant="feature" className="relative overflow-hidden backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
               <CardHeader className="flex flex-col items-center text-center">
                 <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mb-4">
                   <Bell className="h-6 w-6 text-white" />
@@ -128,7 +128,7 @@ export default function HomePage() {
               </CardContent>
             </GradientCard>
 
-            <GradientCard variant="feature">
+            <GradientCard variant="feature" className="relative overflow-hidden backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
               <CardHeader className="flex flex-col items-center text-center">
                 <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mb-4">
                   <TrendingUp className="h-6 w-6 text-white" />
@@ -145,7 +145,7 @@ export default function HomePage() {
               </CardContent>
             </GradientCard>
 
-            <GradientCard variant="feature">
+            <GradientCard variant="feature" className="relative overflow-hidden backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
               <CardHeader className="flex flex-col items-center text-center">
                 <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mb-4">
                   <Shield className="h-6 w-6 text-white" />

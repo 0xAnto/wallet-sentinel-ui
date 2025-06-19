@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Check, Crown, Star, Sparkles, Shield, Building } from "lucide-react"
-import { GradientText } from "@/components/common/gradient-text"
-import { GradientCard } from "@/components/common/gradient-card"
-import { GradientButton } from "@/components/common/gradient-button"
+import Link from "next/link";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Check, Crown, Star, Sparkles, Shield, Building } from "lucide-react";
+import { GradientText } from "@/components/common/gradient-text";
+import { GradientCard } from "@/components/common/gradient-card";
+import { GradientButton } from "@/components/common/gradient-button";
 
 export default function Pricing() {
   return (
@@ -26,8 +26,8 @@ export default function Pricing() {
           </h1>
 
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Start free and scale as you grow. Monitor your Aptos wallets with confidence and never miss an important
-            balance change.
+            Start free and scale as you grow. Monitor your Aptos wallets with
+            confidence and never miss an important balance change.
           </p>
         </div>
 
@@ -45,7 +45,9 @@ export default function Pricing() {
                     <CardTitle className="text-xl">
                       <GradientText variant="green-emerald">Free</GradientText>
                     </CardTitle>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Forever</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Forever
+                    </p>
                   </div>
                 </div>
                 <Badge className="bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 border-green-300/50 dark:border-green-700/50">
@@ -56,9 +58,13 @@ export default function Pricing() {
               <div className="space-y-2">
                 <div className="text-4xl font-bold text-gray-900 dark:text-white">
                   $0
-                  <span className="text-lg text-gray-600 dark:text-gray-400 font-normal">/month</span>
+                  <span className="text-lg text-gray-600 dark:text-gray-400 font-normal">
+                    /month
+                  </span>
                 </div>
-                <p className="text-gray-600 dark:text-gray-400">Perfect for getting started</p>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Perfect for getting started
+                </p>
               </div>
             </CardHeader>
 
@@ -110,9 +116,10 @@ export default function Pricing() {
           </GradientCard>
 
           {/* Pro Plan */}
-          <GradientCard className="relative overflow-hidden backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30 scale-105 shadow-xl">
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 px-4 py-1">
+          <GradientCard className="relative backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30 scale-105 shadow-xl">
+            {/* Badge on top center */}
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+              <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 px-4 py-1 flex items-center">
                 <Sparkles className="h-3 w-3 mr-1" />
                 Recommended
               </Badge>
@@ -127,16 +134,22 @@ export default function Pricing() {
                   <CardTitle className="text-xl">
                     <GradientText variant="purple-blue">Pro</GradientText>
                   </CardTitle>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">For serious traders</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    For serious traders
+                  </p>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <div className="text-4xl font-bold text-gray-900 dark:text-white">
                   $10
-                  <span className="text-lg text-gray-600 dark:text-gray-400 font-normal">/month</span>
+                  <span className="text-lg text-gray-600 dark:text-gray-400 font-normal">
+                    /month
+                  </span>
                 </div>
-                <p className="text-gray-600 dark:text-gray-400">Advanced monitoring features</p>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Advanced monitoring features
+                </p>
               </div>
             </CardHeader>
 
@@ -162,7 +175,9 @@ export default function Pricing() {
                   <div className="w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
                     <Check className="h-3 w-3 text-white" />
                   </div>
-                  <span className="text-sm">Advanced dashboard with analytics</span>
+                  <span className="text-sm">
+                    Advanced dashboard with analytics
+                  </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
@@ -200,18 +215,26 @@ export default function Pricing() {
                 </div>
                 <div>
                   <CardTitle className="text-xl">
-                    <GradientText variant="yellow-orange">Enterprise</GradientText>
+                    <GradientText variant="yellow-orange">
+                      Enterprise
+                    </GradientText>
                   </CardTitle>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">For teams & institutions</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    For teams & institutions
+                  </p>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <div className="text-4xl font-bold text-gray-900 dark:text-white">
                   $25
-                  <span className="text-lg text-gray-600 dark:text-gray-400 font-normal">/month</span>
+                  <span className="text-lg text-gray-600 dark:text-gray-400 font-normal">
+                    /month
+                  </span>
                 </div>
-                <p className="text-gray-600 dark:text-gray-400">Maximum monitoring power</p>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Maximum monitoring power
+                </p>
               </div>
             </CardHeader>
 
@@ -237,7 +260,9 @@ export default function Pricing() {
                   <div className="w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
                     <Check className="h-3 w-3 text-white" />
                   </div>
-                  <span className="text-sm">Real-time monitoring (5-minute intervals)</span>
+                  <span className="text-sm">
+                    Real-time monitoring (5-minute intervals)
+                  </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
@@ -280,33 +305,45 @@ export default function Pricing() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-purple-200/30 dark:border-purple-700/30">
-                      <th className="text-left py-4 px-4 font-medium">Feature</th>
+                      <th className="text-left py-4 px-4 font-medium">
+                        Feature
+                      </th>
                       <th className="text-center py-4 px-4">
-                        <GradientText variant="green-emerald">Free</GradientText>
+                        <GradientText variant="green-emerald">
+                          Free
+                        </GradientText>
                       </th>
                       <th className="text-center py-4 px-4">
                         <GradientText variant="purple-blue">Pro</GradientText>
                       </th>
                       <th className="text-center py-4 px-4">
-                        <GradientText variant="yellow-orange">Enterprise</GradientText>
+                        <GradientText variant="yellow-orange">
+                          Enterprise
+                        </GradientText>
                       </th>
                     </tr>
                   </thead>
                   <tbody className="text-sm">
                     <tr className="border-b border-purple-100/30 dark:border-purple-800/30">
-                      <td className="py-3 px-4 font-medium">Wallet Monitoring</td>
+                      <td className="py-3 px-4 font-medium">
+                        Wallet Monitoring
+                      </td>
                       <td className="text-center py-3 px-4">Up to 10</td>
                       <td className="text-center py-3 px-4">Up to 50</td>
                       <td className="text-center py-3 px-4">Up to 100</td>
                     </tr>
                     <tr className="border-b border-purple-100/30 dark:border-purple-800/30">
-                      <td className="py-3 px-4 font-medium">Daily Notifications</td>
+                      <td className="py-3 px-4 font-medium">
+                        Daily Notifications
+                      </td>
                       <td className="text-center py-3 px-4">1 per wallet</td>
                       <td className="text-center py-3 px-4">5 per wallet</td>
                       <td className="text-center py-3 px-4">100 total</td>
                     </tr>
                     <tr className="border-b border-purple-100/30 dark:border-purple-800/30">
-                      <td className="py-3 px-4 font-medium">Monitoring Frequency</td>
+                      <td className="py-3 px-4 font-medium">
+                        Monitoring Frequency
+                      </td>
                       <td className="text-center py-3 px-4">24 hours</td>
                       <td className="text-center py-3 px-4">Hourly</td>
                       <td className="text-center py-3 px-4">5 minutes</td>
@@ -350,11 +387,14 @@ export default function Pricing() {
             <GradientCard className="backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-3">
-                  <GradientText variant="blue-cyan">How does wallet monitoring work?</GradientText>
+                  <GradientText variant="blue-cyan">
+                    How does wallet monitoring work?
+                  </GradientText>
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  We check your wallet balances at regular intervals and send you alerts when any wallet drops below
-                  your custom threshold. We only monitor balances - never access your private keys.
+                  We check your wallet balances at regular intervals and send
+                  you alerts when any wallet drops below your custom threshold.
+                  We only monitor balances - never access your private keys.
                 </p>
               </CardContent>
             </GradientCard>
@@ -362,11 +402,14 @@ export default function Pricing() {
             <GradientCard className="backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-3">
-                  <GradientText variant="green-emerald">Is my wallet data secure?</GradientText>
+                  <GradientText variant="green-emerald">
+                    Is my wallet data secure?
+                  </GradientText>
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  We only store wallet addresses and alert preferences. We never ask for private keys, seed phrases, or
-                  any sensitive information that could access your funds.
+                  We only store wallet addresses and alert preferences. We never
+                  ask for private keys, seed phrases, or any sensitive
+                  information that could access your funds.
                 </p>
               </CardContent>
             </GradientCard>
@@ -374,11 +417,13 @@ export default function Pricing() {
             <GradientCard className="backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-3">
-                  <GradientText variant="purple-pink">Can I upgrade or downgrade anytime?</GradientText>
+                  <GradientText variant="purple-pink">
+                    Can I upgrade or downgrade anytime?
+                  </GradientText>
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  Yes! You can upgrade, downgrade, or cancel your subscription at any time. Changes take effect at the
-                  next billing cycle.
+                  Yes! You can upgrade, downgrade, or cancel your subscription
+                  at any time. Changes take effect at the next billing cycle.
                 </p>
               </CardContent>
             </GradientCard>
@@ -386,11 +431,13 @@ export default function Pricing() {
             <GradientCard className="backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-3">
-                  <GradientText variant="yellow-orange">What payment methods do you accept?</GradientText>
+                  <GradientText variant="yellow-orange">
+                    What payment methods do you accept?
+                  </GradientText>
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  We accept all major credit cards, PayPal, and cryptocurrency payments. Enterprise customers can also
-                  pay via bank transfer.
+                  We accept all major credit cards, PayPal, and cryptocurrency
+                  payments. Enterprise customers can also pay via bank transfer.
                 </p>
               </CardContent>
             </GradientCard>
@@ -405,7 +452,8 @@ export default function Pricing() {
                 <GradientText>Ready to secure your wallets?</GradientText>
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Join thousands of users who trust Wallet Sentinel to monitor their Aptos wallets 24/7.
+                Join thousands of users who trust Wallet Sentinel to monitor
+                their Aptos wallets 24/7.
               </p>
               <Link href="/auth">
                 <GradientButton className="px-8 py-3">
@@ -418,5 +466,5 @@ export default function Pricing() {
         </div>
       </div>
     </div>
-  )
+  );
 }
