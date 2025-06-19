@@ -52,9 +52,7 @@ export default function HomePage() {
             </div>
 
             {/* Mobile Navigation */}
-            <div className="md:hidden">
-              <MobileNav currentPath="/" />
-            </div>
+            <MobileNav isConfigured={isConfigured} />
           </div>
         </div>
       </nav>

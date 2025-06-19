@@ -144,9 +144,7 @@ export default function AuthPage() {
           </div>
 
           {/* Mobile Navigation */}
-          <div className="md:hidden">
-            <MobileNav currentPath="/auth" />
-          </div>
+          <MobileNav showAuth={false} />
         </div>
       </nav>
 
@@ -203,16 +201,7 @@ export default function AuthPage() {
               )}
 
               <GradientButton type="submit" className="w-full" disabled={loading}>
-                {loading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Loading...
-                  </div>
-                ) : isSignUp ? (
-                  "Create Account"
-                ) : (
-                  "Sign In"
-                )}
+                {loading ? "Loading..." : isSignUp ? "Create Account" : "Sign In"}
               </GradientButton>
             </form>
 
