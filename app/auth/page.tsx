@@ -15,6 +15,7 @@ import { isSupabaseConfigured } from "@/lib/supabase"
 import Link from "next/link"
 import { Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { MobileNav } from "@/components/common/mobile-nav"
 
 export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -132,12 +133,19 @@ export default function AuthPage() {
               <GradientText>Wallet Sentinel</GradientText>
             </span>
           </Link>
-          <div className="flex gap-4">
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex gap-4">
             <Link href="/pricing">
               <Button variant="ghost" className="text-gray-300 hover:text-white">
                 Pricing
               </Button>
             </Link>
+          </div>
+
+          {/* Mobile Navigation */}
+          <div className="md:hidden">
+            <MobileNav currentPath="/auth" />
           </div>
         </div>
       </nav>
@@ -195,7 +203,16 @@ export default function AuthPage() {
               )}
 
               <GradientButton type="submit" className="w-full" disabled={loading}>
-                {loading ? "Loading..." : isSignUp ? "Create Account" : "Sign In"}
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Loading...
+                  </div>
+                ) : isSignUp ? (
+                  "Create Account"
+                ) : (
+                  "Sign In"
+                )}
               </GradientButton>
             </form>
 
