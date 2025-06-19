@@ -373,7 +373,6 @@ export default function Dashboard() {
         title="Dashboard"
         subtitle="Monitor your wallet balances and alerts"
         icon={<Shield className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
-        showBackButton={true}
         badge={`${wallets.length} wallets monitored`}
       />
 

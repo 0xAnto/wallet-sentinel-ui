@@ -12,6 +12,9 @@ import { GradientText } from "@/components/common/gradient-text"
 import { GradientButton } from "@/components/common/gradient-button"
 import { signIn, signUp, getCurrentUser } from "@/lib/auth"
 import { isSupabaseConfigured } from "@/lib/supabase"
+import Link from "next/link"
+import { Shield } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -119,82 +122,103 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black flex items-center justify-center p-4">
-      <GradientCard className="w-full max-w-md">
-        <div className="p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-black">
+      {/* Navigation */}
+      <nav className="p-4">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <Link href="/" className="flex items-center gap-2">
+            <Shield className="h-6 w-6 text-purple-400" />
+            <span className="text-xl font-bold">
               <GradientText>Wallet Sentinel</GradientText>
-            </h1>
-            <p className="text-gray-400">{isSignUp ? "Create your account" : "Sign in to your account"}</p>
+            </span>
+          </Link>
+          <div className="flex gap-4">
+            <Link href="/pricing">
+              <Button variant="ghost" className="text-gray-300 hover:text-white">
+                Pricing
+              </Button>
+            </Link>
           </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="bg-gray-800 border-gray-700 text-white"
-                placeholder="Enter your email"
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="bg-gray-800 border-gray-700 text-white"
-                placeholder="Enter your password"
-                required
-                minLength={6}
-              />
-              {!isSignUp && <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>}
-            </div>
-
-            {error && (
-              <Alert className="border-red-700 bg-red-950/50">
-                <AlertDescription className="text-red-400">{error}</AlertDescription>
-              </Alert>
-            )}
-
-            {success && (
-              <Alert className="border-green-700 bg-green-950/50">
-                <AlertDescription className="text-green-400">{success}</AlertDescription>
-              </Alert>
-            )}
-
-            <GradientButton type="submit" className="w-full" disabled={loading}>
-              {loading ? "Loading..." : isSignUp ? "Create Account" : "Sign In"}
-            </GradientButton>
-          </form>
-
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setIsSignUp(!isSignUp)
-                setError("")
-                setSuccess("")
-                setEmail("")
-                setPassword("")
-              }}
-              className="text-blue-400 hover:text-blue-300 text-sm transition-colors"
-            >
-              {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
-            </button>
-          </div>
-
-          {/* Demo credentials for testing */}
-          
         </div>
-      </GradientCard>
+      </nav>
+
+      {/* Main Content */}
+      <div className="flex items-center justify-center p-4">
+        <GradientCard className="w-full max-w-md">
+          <div className="p-8">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold mb-2">
+                <GradientText>Wallet Sentinel</GradientText>
+              </h1>
+              <p className="text-gray-400">{isSignUp ? "Create your account" : "Sign in to your account"}</p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-gray-800 border-gray-700 text-white"
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="bg-gray-800 border-gray-700 text-white"
+                  placeholder="Enter your password"
+                  required
+                  minLength={6}
+                />
+                {!isSignUp && <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>}
+              </div>
+
+              {error && (
+                <Alert className="border-red-700 bg-red-950/50">
+                  <AlertDescription className="text-red-400">{error}</AlertDescription>
+                </Alert>
+              )}
+
+              {success && (
+                <Alert className="border-green-700 bg-green-950/50">
+                  <AlertDescription className="text-green-400">{success}</AlertDescription>
+                </Alert>
+              )}
+
+              <GradientButton type="submit" className="w-full" disabled={loading}>
+                {loading ? "Loading..." : isSignUp ? "Create Account" : "Sign In"}
+              </GradientButton>
+            </form>
+
+            <div className="mt-6 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSignUp(!isSignUp)
+                  setError("")
+                  setSuccess("")
+                  setEmail("")
+                  setPassword("")
+                }}
+                className="text-blue-400 hover:text-blue-300 text-sm transition-colors"
+              >
+                {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
+              </button>
+            </div>
+
+            {/* Demo credentials for testing */}
+          </div>
+        </GradientCard>
+      </div>
     </div>
   )
 }
