@@ -31,6 +31,10 @@ export const signIn = async (email: string, password: string) => {
     const { data, error } = await supabase!.auth.signInWithPassword({
       email,
       password,
+      options: {
+        // Persist session for 30 days
+        persistSession: true,
+      },
     })
 
     console.log("SignIn response:", { data, error })
@@ -93,5 +97,32 @@ export const getSession = async () => {
   } catch (err: any) {
     console.error("GetSession error:", err)
     return null
+  }
+}
+
+export const checkAuthStatus = async () => {
+  try {
+    if (!isSupabaseConfigured()) {
+      return { user: null, session: null }
+    }
+
+    const {
+      data: { session },
+      error,
+    } = await supabase!.auth.getSession()
+
+    if (error) {
+      console.error("Session check error:", error)
+      return { user: null, session: null }
+    }
+
+    if (session?.user) {
+      return { user: session.user, session }
+    }
+
+    return { user: null, session: null }
+  } catch (err: any) {
+    console.error("Auth status check error:", err)
+    return { user: null, session: null }
   }
 }

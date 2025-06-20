@@ -46,6 +46,7 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { MobileNav } from "@/components/common/mobile-nav"
 import { AppLogo } from "@/components/common/app-logo"
+import { DashboardActions } from "@/components/common/dashboard-actions"
 
 interface WalletWithBalance {
   id: string
@@ -70,6 +71,7 @@ export default function Dashboard() {
   const [newAddress, setNewAddress] = useState("")
   const [newThreshold, setNewThreshold] = useState(10)
   const [newNickname, setNewNickname] = useState("")
+  const [showAddWallet, setShowAddWallet] = useState(false)
 
   // New state for filtering, sorting, and viewing
   const [viewMode, setViewMode] = useState<ViewMode>("list")
@@ -463,8 +465,9 @@ export default function Dashboard() {
       <PageHeader
         title="Dashboard"
         subtitle="Monitor your wallet balances and alerts"
-        icon={   <AppLogo showText="false" />}
+        icon={<AppLogo showText="false" />}
         badge={`${wallets.length} wallets monitored`}
+        badgeVariant="success"
       />
 
       <div className="max-w-7xl mx-auto p-4 space-y-6">
@@ -478,34 +481,7 @@ export default function Dashboard() {
           </div>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex gap-2">
-            <Link href="/notifications">
-              <Button
-                variant="outline"
-                className="border-purple-300/50 dark:border-purple-700/50 bg-gradient-to-r from-purple-50/80 to-blue-50/80 dark:from-purple-900/30 dark:to-blue-900/30 backdrop-blur-sm hover:from-purple-100/80 hover:to-blue-100/80 dark:hover:from-purple-800/40 dark:hover:to-blue-800/40"
-              >
-                <Bell className="h-4 w-4 mr-2" />
-                Notifications
-              </Button>
-            </Link>
-            <Link href="/settings">
-              <Button
-                variant="outline"
-                className="border-purple-300/50 dark:border-purple-700/50 bg-gradient-to-r from-purple-50/80 to-blue-50/80 dark:from-purple-900/30 dark:to-blue-900/30 backdrop-blur-sm hover:from-purple-100/80 hover:to-blue-100/80 dark:hover:from-purple-800/40 dark:hover:to-blue-800/40"
-              >
-                <Settings className="h-4 w-4 mr-2" />
-                Settings
-              </Button>
-            </Link>
-            <Button
-              variant="outline"
-              onClick={handleSignOut}
-              className="border-purple-300/50 dark:border-purple-700/50 bg-gradient-to-r from-purple-50/80 to-blue-50/80 dark:from-purple-900/30 dark:to-blue-900/30 backdrop-blur-sm hover:from-purple-100/80 hover:to-blue-100/80 dark:hover:from-purple-800/40 dark:hover:to-blue-800/40"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
+          <DashboardActions onSignOut={handleSignOut} />
 
           {/* Mobile Navigation */}
           <MobileNav showAuth={false}>
@@ -533,57 +509,74 @@ export default function Dashboard() {
           </MobileNav>
         </div>
 
-        {/* Add Wallet Form */}
-        <GradientCard className="backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Plus className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              <GradientText>Add New Wallet</GradientText>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <Label htmlFor="address">Wallet Address</Label>
-                <Input
-                  id="address"
-                  placeholder="0x1a2b3c4d5e6f..."
-                  value={newAddress}
-                  onChange={(e) => setNewAddress(e.target.value)}
-                  className="bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/40 dark:border-purple-600/40 backdrop-blur-sm focus:border-purple-500/60 dark:focus:border-purple-400/60"
-                />
+        {/* Add Wallet Toggle Button */}
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold">
+            <GradientText variant="blue-cyan">Wallet Management</GradientText>
+          </h2>
+          <GradientButton
+            onClick={() => setShowAddWallet(!showAddWallet)}
+            variant="outline"
+            className="border-purple-300/50 dark:border-purple-700/50"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            {showAddWallet ? "Hide Add Wallet" : "Add New Wallet"}
+          </GradientButton>
+        </div>
+
+        {/* Collapsible Add Wallet Form */}
+        {showAddWallet && (
+          <GradientCard className="backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Plus className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <GradientText>Add New Wallet</GradientText>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                  <Label htmlFor="address">Wallet Address</Label>
+                  <Input
+                    id="address"
+                    placeholder="0x1a2b3c4d5e6f..."
+                    value={newAddress}
+                    onChange={(e) => setNewAddress(e.target.value)}
+                    className="bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/40 dark:border-purple-600/40 backdrop-blur-sm focus:border-purple-500/60 dark:focus:border-purple-400/60"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="nickname">Nickname (Optional)</Label>
+                  <Input
+                    id="nickname"
+                    placeholder="My Main Wallet"
+                    value={newNickname}
+                    onChange={(e) => setNewNickname(e.target.value)}
+                    className="bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/40 dark:border-purple-600/40 backdrop-blur-sm focus:border-purple-500/60 dark:focus:border-purple-400/60"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="threshold">Alert Threshold (APT)</Label>
+                  <Input
+                    id="threshold"
+                    type="number"
+                    min="0.1"
+                    step="0.1"
+                    value={newThreshold}
+                    onChange={(e) => setNewThreshold(Number.parseFloat(e.target.value) || 10)}
+                    className="bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/40 dark:border-purple-600/40 backdrop-blur-sm focus:border-purple-500/60 dark:focus:border-purple-400/60"
+                  />
+                </div>
+                <div className="flex items-end">
+                  <GradientButton onClick={handleAddWallet} className="w-full">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Wallet
+                  </GradientButton>
+                </div>
               </div>
-              <div>
-                <Label htmlFor="nickname">Nickname (Optional)</Label>
-                <Input
-                  id="nickname"
-                  placeholder="My Main Wallet"
-                  value={newNickname}
-                  onChange={(e) => setNewNickname(e.target.value)}
-                  className="bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/40 dark:border-purple-600/40 backdrop-blur-sm focus:border-purple-500/60 dark:focus:border-purple-400/60"
-                />
-              </div>
-              <div>
-                <Label htmlFor="threshold">Alert Threshold (APT)</Label>
-                <Input
-                  id="threshold"
-                  type="number"
-                  min="0.1"
-                  step="0.1"
-                  value={newThreshold}
-                  onChange={(e) => setNewThreshold(Number.parseFloat(e.target.value) || 10)}
-                  className="bg-gradient-to-r from-purple-100/60 to-blue-100/60 dark:from-purple-900/40 dark:to-blue-900/40 border-purple-300/40 dark:border-purple-600/40 backdrop-blur-sm focus:border-purple-500/60 dark:focus:border-purple-400/60"
-                />
-              </div>
-              <div className="flex items-end">
-                <GradientButton onClick={handleAddWallet} className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Wallet
-                </GradientButton>
-              </div>
-            </div>
-          </CardContent>
-        </GradientCard>
+            </CardContent>
+          </GradientCard>
+        )}
 
         <GradientCard className="backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
           <CardContent className="p-3 sm:p-4">

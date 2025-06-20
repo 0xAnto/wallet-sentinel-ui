@@ -49,3 +49,31 @@ export const checkUserWalletAlerts = async (userId: string, userEmail: string) =
     console.error(`Error checking alerts for user ${userId}:`, error)
   }
 }
+
+export const getAllMonitoredWallets = async () => {
+  try {
+    const { data: wallets, error } = await supabase!
+      .from("wallets")
+      .select(`
+        id,
+        address,
+        threshold,
+        nickname,
+        user_id,
+        users:user_id (
+          email
+        )
+      `)
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("Error fetching monitored wallets:", error)
+      throw error
+    }
+
+    return wallets || []
+  } catch (error) {
+    console.error("Error in getAllMonitoredWallets:", error)
+    throw error
+  }
+}

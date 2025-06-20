@@ -11,9 +11,24 @@ interface PageHeaderProps {
   icon?: React.ReactNode
   showBackButton?: boolean
   badge?: string
+  badgeVariant?: "default" | "success" | "warning" | "destructive"
 }
 
-export function PageHeader({ title, subtitle, icon, showBackButton = false, badge }: PageHeaderProps) {
+export function PageHeader({
+  title,
+  subtitle,
+  icon,
+  showBackButton = false,
+  badge,
+  badgeVariant = "default",
+}: PageHeaderProps) {
+  const badgeClasses = {
+    default: "text-yellow-400 border-yellow-400 bg-yellow-950/20",
+    success: "text-green-400 border-green-400 bg-green-950/20",
+    warning: "text-orange-400 border-orange-400 bg-orange-950/20",
+    destructive: "text-red-400 border-red-400 bg-red-950/20",
+  }
+
   return (
     <nav className="border-b border-gray-800/50 backdrop-blur-sm bg-black/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -36,7 +51,7 @@ export function PageHeader({ title, subtitle, icon, showBackButton = false, badg
             </div>
           </div>
           {badge && (
-            <Badge variant="outline" className="text-yellow-400 border-yellow-400 bg-yellow-950/20">
+            <Badge variant="outline" className={badgeClasses[badgeVariant]}>
               {badge}
             </Badge>
           )}

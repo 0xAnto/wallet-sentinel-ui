@@ -10,10 +10,11 @@ import { SettingsIcon, Save, Plus, ArrowLeft, Mail, X, Bell } from "lucide-react
 import { GradientText } from "@/components/common/gradient-text"
 import { GradientCard } from "@/components/common/gradient-card"
 import { GradientButton } from "@/components/common/gradient-button"
-import { getCurrentUser } from "@/lib/auth"
+import { checkAuthStatus } from "@/lib/auth"
 import { getUserSettings, updateUserSettings } from "@/lib/wallet-service"
 import { useToast } from "@/hooks/use-toast"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function Settings() {
   const [user, setUser] = useState<any>(null)
@@ -32,13 +33,13 @@ export default function Settings() {
 
   const checkUser = async () => {
     try {
-      const currentUser = await getCurrentUser()
-      if (!currentUser) {
+      const { user, session } = await checkAuthStatus()
+      if (!user || !session) {
         router.push("/auth")
         return
       }
-      setUser(currentUser)
-      await loadSettings(currentUser.id)
+      setUser(user)
+      await loadSettings(user.id)
     } catch (error) {
       console.error("Error checking user:", error)
       router.push("/auth")
@@ -149,8 +150,79 @@ export default function Settings() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-white dark:from-gray-950 dark:via-purple-950 dark:to-black flex items-center justify-center">
-        <div className="text-gray-900 dark:text-white">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-white dark:from-gray-950 dark:via-purple-950 dark:to-black text-gray-900 dark:text-white">
+        {/* Header Skeleton */}
+        <div className="border-b border-purple-200/50 dark:border-purple-800/50 backdrop-blur-md bg-purple-50/80 dark:bg-purple-900/20 p-4">
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-10 w-10 bg-purple-200/50 dark:bg-purple-800/30" />
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-6 w-6 bg-purple-200/50 dark:bg-purple-800/30" />
+              <Skeleton className="h-8 w-32 bg-purple-200/50 dark:bg-purple-800/30" />
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-4xl mx-auto p-4 space-y-6">
+          {/* Notification Settings Skeleton */}
+          <GradientCard className="backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-5 w-5 bg-purple-200/50 dark:bg-purple-800/30" />
+                <Skeleton className="h-6 w-48 bg-purple-200/50 dark:bg-purple-800/30" />
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-40 bg-purple-200/50 dark:bg-purple-800/30" />
+                  <Skeleton className="h-4 w-80 bg-purple-200/50 dark:bg-purple-800/30" />
+                </div>
+                <Skeleton className="h-10 w-24 bg-purple-200/50 dark:bg-purple-800/30" />
+              </div>
+
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32 bg-purple-200/50 dark:bg-purple-800/30" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-10 w-24 bg-purple-200/50 dark:bg-purple-800/30" />
+                  <Skeleton className="h-10 w-20 bg-purple-200/50 dark:bg-purple-800/30" />
+                  <Skeleton className="h-10 w-16 bg-purple-200/50 dark:bg-purple-800/30" />
+                </div>
+                <Skeleton className="h-4 w-64 bg-purple-200/50 dark:bg-purple-800/30" />
+              </div>
+
+              <div className="space-y-4">
+                <Skeleton className="h-5 w-56 bg-purple-200/50 dark:bg-purple-800/30" />
+                <Skeleton className="h-4 w-48 bg-purple-200/50 dark:bg-purple-800/30" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-10 flex-1 bg-purple-200/50 dark:bg-purple-800/30" />
+                  <Skeleton className="h-10 w-20 bg-purple-200/50 dark:bg-purple-800/30" />
+                </div>
+              </div>
+            </CardContent>
+          </GradientCard>
+
+          {/* Account Information Skeleton */}
+          <GradientCard className="backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
+            <CardHeader>
+              <Skeleton className="h-6 w-40 bg-purple-200/50 dark:bg-purple-800/30" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Skeleton className="h-4 w-24 bg-purple-200/50 dark:bg-purple-800/30 mb-2" />
+                <Skeleton className="h-6 w-64 bg-purple-200/50 dark:bg-purple-800/30" />
+              </div>
+              <div>
+                <Skeleton className="h-4 w-32 bg-purple-200/50 dark:bg-purple-800/30 mb-2" />
+                <Skeleton className="h-6 w-48 bg-purple-200/50 dark:bg-purple-800/30" />
+              </div>
+            </CardContent>
+          </GradientCard>
+
+          {/* Save Button Skeleton */}
+          <div className="flex justify-end">
+            <Skeleton className="h-10 w-32 bg-purple-200/50 dark:bg-purple-800/30" />
+          </div>
+        </div>
       </div>
     )
   }

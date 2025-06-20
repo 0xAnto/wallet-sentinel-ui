@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { GradientCard } from "@/components/common/gradient-card"
 import { GradientText } from "@/components/common/gradient-text"
 import { GradientButton } from "@/components/common/gradient-button"
-import { signIn, signUp, getCurrentUser } from "@/lib/auth"
+import { signIn, signUp, checkAuthStatus } from "@/lib/auth"
 import { isSupabaseConfigured } from "@/lib/supabase"
 import Link from "next/link"
 import { Shield } from "lucide-react"
@@ -39,12 +39,15 @@ export default function AuthPage() {
       }
 
       try {
-        const user = await getCurrentUser()
-        if (user) {
+        const { user, session } = await checkAuthStatus()
+        if (user && session) {
+          // User is already logged in, redirect to dashboard
           router.push("/dashboard")
+          return
         }
       } catch (error) {
         // User not logged in, stay on auth page
+        console.log("User not authenticated, staying on auth page")
       }
     }
 
@@ -150,9 +153,7 @@ export default function AuthPage() {
 
       {/* Main Content */}
       <div className="flex items-center justify-center p-4">
-         <GradientCard
-              className="w-full max-w-md relative overflow-hidden backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30"
-            > 
+        <GradientCard className="w-full max-w-md relative overflow-hidden backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30">
           <div className="p-8">
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold mb-2">
