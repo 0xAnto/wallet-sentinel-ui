@@ -150,7 +150,9 @@ export default function AuthPage() {
 
       {/* Main Content */}
       <div className="flex items-center justify-center p-4">
-        <GradientCard className="w-full max-w-md">
+         <GradientCard
+              className="w-full max-w-md relative overflow-hidden backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30"
+            > 
           <div className="p-8">
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold mb-2">

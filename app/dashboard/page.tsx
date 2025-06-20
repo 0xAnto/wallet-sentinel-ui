@@ -45,6 +45,7 @@ import {
 } from "@/lib/wallet-service"
 import { useToast } from "@/hooks/use-toast"
 import { MobileNav } from "@/components/common/mobile-nav"
+import { AppLogo } from "@/components/common/app-logo"
 
 interface WalletWithBalance {
   id: string
@@ -77,7 +78,7 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("")
 
   // Add refresh state
-  const [refreshInterval, setRefreshInterval] = useState(15) // seconds
+  const [refreshInterval, setRefreshInterval] = useState(60) // seconds
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [autoRefresh, setAutoRefresh] = useState(true)
 
@@ -462,7 +463,7 @@ export default function Dashboard() {
       <PageHeader
         title="Dashboard"
         subtitle="Monitor your wallet balances and alerts"
-        icon={<Shield className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
+        icon={   <AppLogo showText="false" />}
         badge={`${wallets.length} wallets monitored`}
       />
 
@@ -471,9 +472,9 @@ export default function Dashboard() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold">
-              <GradientText>Welcome back, {user?.email}</GradientText>
+              <GradientText>Welcome back, </GradientText>
+              <GradientText variant="green-emerald">{user?.email}</GradientText>
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">Monitor your Aptos wallets and stay alert</p>
           </div>
 
           {/* Desktop Actions */}
@@ -645,7 +646,7 @@ export default function Dashboard() {
                     >
                       <RefreshCw className={`h-3 w-3 mr-1 ${isRefreshing ? "animate-spin" : ""}`} />
                       <span className="hidden xs:inline">{isRefreshing ? "Refreshing..." : "Refresh"}</span>
-                      <span className="xs:hidden">{isRefreshing ? "..." : "Refresh"}</span>
+                      <span className="xs:hidden">{isRefreshing ? "Refreshing..." : "Refresh"}</span>
                     </Button>
 
                     <div className="h-4 w-px bg-purple-300/50 dark:bg-purple-600/50" />

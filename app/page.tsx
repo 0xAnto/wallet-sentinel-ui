@@ -77,7 +77,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto text-center">
           <div className="mb-8">
             <Badge className="bg-gradient-to-r from-black-600/20 to-purple-600/20 border-blue-500/30 mb-4 text-blue-300">
-              🚀 Never Miss a Low Balance Again
+              🚀 Never Run out of Gas Again
             </Badge>
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
               <GradientText className="block">Wallet Sentinel</GradientText>
@@ -87,7 +87,6 @@ export default function HomePage() {
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
               Monitor your wallets 24/7 and get instant email alerts when balances drop below your custom thresholds.
-              Never run out of gas for important transactions again.
             </p>
           </div>
 

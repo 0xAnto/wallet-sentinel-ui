@@ -107,7 +107,7 @@ export default function Pricing() {
               </div>
 
               <Link href="/auth" className="block">
-                <GradientButton variant="green-emerald" className="w-full">
+                <GradientButton gradient="green-emerald" className="w-full">
                   <Star className="h-4 w-4 mr-2" />
                   Get Started Free
                 </GradientButton>
@@ -132,7 +132,7 @@ export default function Pricing() {
                 </div>
                 <div>
                   <CardTitle className="text-xl">
-                    <GradientText variant="purple-blue">Pro</GradientText>
+                    <GradientText variant="blue-purple">Pro</GradientText>
                   </CardTitle>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     For serious traders
@@ -198,11 +198,13 @@ export default function Pricing() {
                   <span className="text-sm">Custom alert thresholds</span>
                 </div>
               </div>
+<Link href="/auth" className="block">
 
-              <GradientButton variant="purple-blue" className="w-full">
+              <GradientButton gradient="blue-purple" className="w-full">
                 <Shield className="h-4 w-4 mr-2" />
                 Start Pro Trial
               </GradientButton>
+              </Link>
             </CardContent>
           </GradientCard>
 
@@ -284,7 +286,7 @@ export default function Pricing() {
                 </div>
               </div>
 
-              <GradientButton variant="yellow-orange" className="w-full">
+              <GradientButton gradient="red-orange" className="w-full">
                 <Building className="h-4 w-4 mr-2" />
                 Contact Sales
               </GradientButton>
@@ -314,7 +316,7 @@ export default function Pricing() {
                         </GradientText>
                       </th>
                       <th className="text-center py-4 px-4">
-                        <GradientText variant="purple-blue">Pro</GradientText>
+                        <GradientText variant="blue-purple">Pro</GradientText>
                       </th>
                       <th className="text-center py-4 px-4">
                         <GradientText variant="yellow-orange">
@@ -350,14 +352,6 @@ export default function Pricing() {
                     </tr>
                     <tr className="border-b border-purple-100/30 dark:border-purple-800/30">
                       <td className="py-3 px-4 font-medium">SMS & Discord</td>
-                      <td className="text-center py-3 px-4">-</td>
-                      <td className="text-center py-3 px-4">-</td>
-                      <td className="text-center py-3 px-4">
-                        <Check className="h-4 w-4 text-green-500 mx-auto" />
-                      </td>
-                    </tr>
-                    <tr className="border-b border-purple-100/30 dark:border-purple-800/30">
-                      <td className="py-3 px-4 font-medium">API Access</td>
                       <td className="text-center py-3 px-4">-</td>
                       <td className="text-center py-3 px-4">-</td>
                       <td className="text-center py-3 px-4">

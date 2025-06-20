@@ -6,7 +6,7 @@ interface AppLogoProps {
   showText?: boolean
 }
 
-export function AppLogo({ size = "md", showText = true }: AppLogoProps) {
+export function AppLogo({ size = "md", showText = "true" }: AppLogoProps) {
   const sizes = {
     sm: "h-6 w-6",
     md: "h-8 w-8",
@@ -27,7 +27,7 @@ export function AppLogo({ size = "md", showText = true }: AppLogoProps) {
           <Shield className={`${sizes[size]} text-white`} />
         </div>
       </div>
-      {showText && <GradientText className={`font-bold ${textSizes[size]}`}>Wallet Sentinel</GradientText>}
+      {showText == true && <GradientText className={`font-bold ${textSizes[size]}`}>Wallet Sentinel</GradientText>}
     </div>
   )
 }
