@@ -1,7 +1,4 @@
 "use client"
-
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,8 +14,6 @@ import {
   Bell,
   Trash2,
   LogOut,
-  AlertTriangle,
-  CheckCircle,
   Clock,
   Search,
   Filter,
@@ -33,17 +28,8 @@ import { GradientText } from "@/components/common/gradient-text"
 import { GradientCard } from "@/components/common/gradient-card"
 import { GradientButton } from "@/components/common/gradient-button"
 import { PageHeader } from "@/components/common/page-header"
-import { getCurrentUser, signOut } from "@/lib/auth"
-import {
-  getUserWallets,
-  addWallet,
-  deleteWallet,
-  updateWallet,
-  fetchWalletBalance,
-  getNotificationHistory,
-  type Notification,
-} from "@/lib/wallet-service"
-import { useToast } from "@/hooks/use-toast"
+import { signOut } from "@/lib/auth"
+import { deleteWallet, updateWallet } from "@/lib/wallet-service"
 import { MobileNav } from "@/components/common/mobile-nav"
 import { AppLogo } from "@/components/common/app-logo"
 import { DashboardActions } from "@/components/common/dashboard-actions"
@@ -63,9 +49,38 @@ type ViewMode = "list" | "small-grid" | "large-grid"
 type SortOption = "name" | "balance" | "threshold" | "status" | "created"
 type FilterOption = "all" | "healthy" | "warning" | "alert"
 
-export default function Dashboard() {
-  const [user, setUser] = useState<any>(null)
-  const [wallets, setWallets] = useState<WalletWithBalance[]>([])
+// Local storage keys
+const STORAGE_KEYS = {
+  VIEW_MODE: "wallet-sentinel-view-mode",
+  SORT_BY: "wallet-sentinel-sort-by",
+  FILTER_BY: "wallet-sentinel-filter-by",
+  REFRESH_INTERVAL: "wallet-sentinel-refresh-interval",
+  AUTO_REFRESH: "wallet-sentinel-auto-refresh",
+}
+
+// Helper functions for localStorage
+const getStoredValue = <T>(key: string, defaultValue: T): T => {\
+  if (typeof window === 'undefined') return defaultValue
+  try {\
+    const stored = localStorage.getItem(key)
+    return stored ? JSON.parse(stored) : defaultValue
+  } catch {\
+    return defaultValue
+  }
+}
+
+const setStoredValue = <T>(key: string, value: T): void => {\
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // Ignore localStorage errors
+  }
+}
+
+export default function Dashboard() {\
+  const [user, setUser] = useState<any>(null)\
+  const [wallets, setWallets] = useState<WalletWithBalance[]>([])\
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
   const [newAddress, setNewAddress] = useState("")
@@ -73,16 +88,16 @@ export default function Dashboard() {
   const [newNickname, setNewNickname] = useState("")
   const [showAddWallet, setShowAddWallet] = useState(false)
 
-  // New state for filtering, sorting, and viewing
-  const [viewMode, setViewMode] = useState<ViewMode>("list")
-  const [sortBy, setSortBy] = useState<SortOption>("name")
-  const [filterBy, setFilterBy] = useState<FilterOption>("all")
-  const [searchQuery, setSearchQuery] = useState("")
+  // New state for filtering, sorting, and viewing - with localStorage
+  const [viewMode, setViewMode] = useState<ViewMode>(() => getStoredValue(STORAGE_KEYS.VIEW_MODE, "list"))
+  const [sortBy, setSortBy] = useState<SortOption>(() => getStoredValue(STORAGE_KEYS.SORT_BY, "name"))
+  const [filterBy, setFilterBy] = useState<FilterOption>(() => getStoredValue(STORAGE_KEYS.FILTER_BY, "all"))
 
-  // Add refresh state
-  const [refreshInterval, setRefreshInterval] = useState(60) // seconds
-  const [isRefreshing, setIsRefreshing] = useState(false)
-  const [autoRefresh, setAutoRefresh] = useState(true)
+  // Add refresh state - with localStorage
+  const [refreshInterval, setRefreshInterval] = useState(() => getStoredValue(STORAGE_KEYS.REFRESH_INTERVAL, 60))
+  const [autoRefresh, setAutoRefresh] = useState(() => getStoredValue(STORAGE_KEYS.AUTO_REFRESH, true))
+
+  const [searchQuery, setSearchQuery] = useState("")
 
   const router = useRouter()
   const { toast } = useToast()
@@ -91,27 +106,27 @@ export default function Dashboard() {
     checkUser()
   }, [])
 
-  const checkUser = async () => {
-    try {
+  const checkUser = async () => {\
+    try {\
       const currentUser = await getCurrentUser()
 
       if (!currentUser) {
-        router.push("/auth")
+        router.push("/auth")\
         return
       }
 
       setUser(currentUser)
       await loadData(currentUser.id)
     } catch (error) {
-      console.error("Error checking user:", error)
+      console.error("Error checking user:", error)\
       router.push("/auth")
     } finally {
       setLoading(false)
     }
   }
 
-  const loadData = async (userId: string) => {
-    try {
+  const loadData = async (userId: string) => {\
+    try {\
       const [walletsData, notificationsData] = await Promise.all([
         getUserWallets(userId),
         getNotificationHistory(userId),
@@ -125,8 +140,8 @@ export default function Dashboard() {
         fetchBalance(wallet.id, wallet.address)
       }
     } catch (error) {
-      console.error("Error loading data:", error)
-      toast({
+      console.error("Error loading data:", error)\
+      toast({\
         title: "Error",
         description: "Failed to load wallet data. Please check your database connection.",
         variant: "destructive",
@@ -136,38 +151,38 @@ export default function Dashboard() {
 
   const fetchBalance = async (walletId: string, address: string) => {
     setWallets((prev) => prev.map((w) => (w.id === walletId ? { ...w, isLoading: true } : w)))
-
-    try {
-      const balance = await fetchWalletBalance(address)
+\
+    try {\
+      const balance = await fetchWalletBalance(address)\
       setWallets((prev) => prev.map((w) => (w.id === walletId ? { ...w, balance, isLoading: false } : w)))
     } catch (error) {
-      console.error("Error fetching balance:", error)
+      console.error("Error fetching balance:", error)\
       setWallets((prev) => prev.map((w) => (w.id === walletId ? { ...w, isLoading: false } : w)))
     }
   }
 
-  const handleAddWallet = async () => {
+  const handleAddWallet = async () => {\
     if (!newAddress.trim() || !user) {
       toast({
         title: "Error",
         description: "Please enter a wallet address",
         variant: "destructive",
-      })
+      })\
       return
     }
 
     // Basic validation
-    if (!newAddress.startsWith("0x") || newAddress.length < 10) {
-      toast({
-        title: "Invalid Address",
-        description: "Please enter a valid wallet address starting with 0x",
+    if (!newAddress.startsWith("0x\") || newAddress.length < 10) {\
+      toast({\
+        title: "Invalid Address",\
+        description: "Please enter a valid wallet address starting with 0x",\
         variant: "destructive",
       })
       return
     }
 
-    try {
-      const wallet = await addWallet({
+    try {\
+      const wallet = await addWallet({\
         user_id: user.id,
         address: newAddress.trim(),
         threshold: newThreshold,
@@ -182,12 +197,12 @@ export default function Dashboard() {
       // Fetch balance for new wallet
       fetchBalance(wallet.id, wallet.address)
 
-      toast({
+      toast({\
         title: "Wallet Added",
         description: "Wallet has been added to monitoring",
       })
     } catch (error) {
-      console.error("Error adding wallet:", error)
+      console.error("Error adding wallet:", error)\
       toast({
         title: "Error",
         description: "Failed to add wallet. Please check your database connection.",
@@ -356,6 +371,27 @@ export default function Dashboard() {
     return () => clearInterval(interval)
   }, [autoRefresh, refreshInterval, user, wallets.length])
 
+  // Save preferences to localStorage
+  useEffect(() => {
+    setStoredValue(STORAGE_KEYS.VIEW_MODE, viewMode)
+  }, [viewMode])
+
+  useEffect(() => {
+    setStoredValue(STORAGE_KEYS.SORT_BY, sortBy)
+  }, [sortBy])
+
+  useEffect(() => {
+    setStoredValue(STORAGE_KEYS.FILTER_BY, filterBy)
+  }, [filterBy])
+
+  useEffect(() => {
+    setStoredValue(STORAGE_KEYS.REFRESH_INTERVAL, refreshInterval)
+  }, [refreshInterval])
+
+  useEffect(() => {
+    setStoredValue(STORAGE_KEYS.AUTO_REFRESH, autoRefresh)
+  }, [autoRefresh])
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-white dark:from-gray-950 dark:via-purple-950 dark:to-black">
@@ -414,36 +450,85 @@ export default function Dashboard() {
             </CardContent>
           </GradientCard>
 
-          {/* Wallet Cards Skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Wallet Cards Skeleton - Use stored view mode */}
+          <div className={(() => {
+            const storedViewMode = getStoredValue(STORAGE_KEYS.VIEW_MODE, "list")
+            switch (storedViewMode) {
+              case "list":
+                return "grid grid-cols-1 gap-3"
+              case "small-grid":
+                return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+              case "large-grid":
+                return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              default:
+                return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            }
+          })()}>
             {[1, 2, 3].map((i) => (
               <GradientCard
                 key={i}
                 className="backdrop-blur-md bg-gradient-to-br from-purple-50/90 to-blue-50/90 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200/30 dark:border-purple-700/30"
               >
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <Skeleton className="h-6 w-32 bg-purple-200/50 dark:bg-purple-800/30" />
-                    <Skeleton className="h-8 w-8 bg-purple-200/50 dark:bg-purple-800/30" />
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div>
-                    <Skeleton className="h-4 w-16 mb-2 bg-purple-200/50 dark:bg-purple-800/30" />
-                    <Skeleton className="h-8 w-full bg-purple-200/50 dark:bg-purple-800/30" />
-                  </div>
-                  <div>
-                    <Skeleton className="h-4 w-24 mb-2 bg-purple-200/50 dark:bg-purple-800/30" />
-                    <Skeleton className="h-8 w-full bg-purple-200/50 dark:bg-purple-800/30" />
-                  </div>
-                  <div>
-                    <Skeleton className="h-4 w-20 mb-2 bg-purple-200/50 dark:bg-purple-800/30" />
-                    <Skeleton className="h-8 w-full bg-purple-200/50 dark:bg-purple-800/30" />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Skeleton className="h-6 w-16 bg-purple-200/50 dark:bg-purple-800/30" />
-                  </div>
-                </CardContent>
+                {(() => {
+                  const storedViewMode = getStoredValue(STORAGE_KEYS.VIEW_MODE, "list")
+                  if (storedViewMode === "list") {
+                    return (
+                      <div className="w-full">
+                        {/* Mobile List Skeleton */}
+                        <div className="block md:hidden p-3 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <Skeleton className="h-5 w-32 bg-purple-200/50 dark:bg-purple-800/30" />
+                            <Skeleton className="h-8 w-8 bg-purple-200/50 dark:bg-purple-800/30" />
+                          </div>
+                          <Skeleton className="h-8 w-full bg-purple-200/50 dark:bg-purple-800/30" />
+                          <div className="flex items-center justify-between">
+                            <Skeleton className="h-6 w-20 bg-purple-200/50 dark:bg-purple-800/30" />
+                            <Skeleton className="h-6 w-16 bg-purple-200/50 dark:bg-purple-800/30" />
+                          </div>
+                          <Skeleton className="h-8 w-full bg-purple-200/50 dark:bg-purple-800/30" />
+                        </div>
+
+                        {/* Desktop List Skeleton */}
+                        <div className="hidden md:flex items-center w-full p-4 gap-4">
+                          <Skeleton className="h-6 w-40 bg-purple-200/50 dark:bg-purple-800/30" />
+                          <Skeleton className="h-8 w-8 bg-purple-200/50 dark:bg-purple-800/30" />
+                          <Skeleton className="h-8 flex-1 bg-purple-200/50 dark:bg-purple-800/30" />
+                          <Skeleton className="h-6 w-24 bg-purple-200/50 dark:bg-purple-800/30" />
+                          <Skeleton className="h-8 w-24 bg-purple-200/50 dark:bg-purple-800/30" />
+                          <Skeleton className="h-6 w-16 bg-purple-200/50 dark:bg-purple-800/30" />
+                        </div>
+                      </div>
+                    )
+                  } else {
+                    return (
+                      <>
+                        <CardHeader className={`${storedViewMode === "small-grid" ? "pb-2 px-3 pt-3" : "pb-3"}`}>
+                          <div className="flex items-center justify-between">
+                            <Skeleton className="h-6 w-32 bg-purple-200/50 dark:bg-purple-800/30" />
+                            <Skeleton className="h-8 w-8 bg-purple-200/50 dark:bg-purple-800/30" />
+                          </div>
+                        </CardHeader>
+                        <CardContent className={`space-y-3 ${storedViewMode === "small-grid" ? "px-3 pb-3" : ""}`}>
+                          <div>
+                            <Skeleton className="h-4 w-16 mb-2 bg-purple-200/50 dark:bg-purple-800/30" />
+                            <Skeleton className="h-8 w-full bg-purple-200/50 dark:bg-purple-800/30" />
+                          </div>
+                          <div>
+                            <Skeleton className="h-4 w-24 mb-2 bg-purple-200/50 dark:bg-purple-800/30" />
+                            <Skeleton className="h-8 w-full bg-purple-200/50 dark:bg-purple-800/30" />
+                          </div>
+                          <div>
+                            <Skeleton className="h-4 w-20 mb-2 bg-purple-200/50 dark:bg-purple-800/30" />
+                            <Skeleton className="h-8 w-full bg-purple-200/50 dark:bg-purple-800/30" />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Skeleton className="h-6 w-16 bg-purple-200/50 dark:bg-purple-800/30" />
+                          </div>
+                        </CardContent>
+                      </>
+                    )
+                  }
+                })()}
               </GradientCard>
             ))}
           </div>

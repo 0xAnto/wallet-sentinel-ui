@@ -230,24 +230,35 @@ export default function Settings() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-white dark:from-gray-950 dark:via-purple-950 dark:to-black text-gray-900 dark:text-white">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-purple-200/50 dark:border-purple-800/50 backdrop-blur-md bg-purple-50/80 dark:bg-purple-900/20">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push("/dashboard")}
-            className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex items-center gap-2">
-            <SettingsIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-            <h1 className="text-2xl font-bold">
-              <GradientText>Settings</GradientText>
-            </h1>
+      <div className="p-4 border-b border-purple-200/50 dark:border-purple-800/50 backdrop-blur-md bg-purple-50/80 dark:bg-purple-900/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push("/dashboard")}
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div className="flex items-center gap-2">
+              <SettingsIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <h1 className="text-xl sm:text-2xl font-bold">
+                <GradientText>Settings</GradientText>
+              </h1>
+            </div>
+          </div>
+
+          {/* Desktop Theme Toggle */}
+          <div className="hidden sm:block">
+            <ThemeToggle />
+          </div>
+
+          {/* Mobile Theme Toggle */}
+          <div className="sm:hidden">
+            <ThemeToggle />
           </div>
         </div>
-        <ThemeToggle />
       </div>
 
       <div className="max-w-4xl mx-auto p-4 space-y-6">
